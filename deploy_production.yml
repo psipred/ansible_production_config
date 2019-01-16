@@ -4,6 +4,8 @@
 #  WARNING! YOU MUST HAVE A COMPLETE secrets/
 #  YOU MUST HAVE files/jdk-8u60-linux-x64.tar.gz
 #
+
+# NOT NEEDED IN PRODUCTION
 # - name: Set up mount point
 #   hosts: everyone
 #   become: true
@@ -15,16 +17,17 @@
 #   vars_files:
 #     - secrets/staging_secrets.yaml
 #
-# - name: Apply the redis configuration
-#   hosts: redis
-#   become: true
-#   become_user: dbuchan
-#   become_method: sudo
-#   roles:
-#    - redis
-#   vars_files:
-#    - secrets/staging_secrets.yaml
-#
+
+- name: Apply the redis configuration
+  hosts: redis
+  become: true
+  become_user: dbuchan
+  become_method: sudo
+  roles:
+   - redis
+  vars_files:
+   - secrets/production_secrets.yml
+
 # - name: Apply the postgres configuration
 #   hosts: dbserver
 #   become: true
