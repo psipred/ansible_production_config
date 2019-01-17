@@ -6,7 +6,7 @@
 #
 
 # NOT NEEDED IN PRODUCTION
-- name: Set up mount point
+- name: Set up common bits needed for the rest of the install
   hosts: everyone
   become: true
   become_user: dbuchan
