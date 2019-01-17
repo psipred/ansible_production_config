@@ -1,0 +1,17 @@
+  - name: Install epel
+    yum:
+      pkg: epel-release
+      state: latest
+    become_user: root
+    become_method: sudo
+
+  - name: Update core packages
+    yum:
+      name:
+        - git
+        - nss
+        - curl
+        - libcurl
+      state: latest
+    become_user: root
+    become_method: sudo

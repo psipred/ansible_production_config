@@ -6,16 +6,15 @@
 #
 
 # NOT NEEDED IN PRODUCTION
-# - name: Set up mount point
-#   hosts: everyone
-#   become: true
-#   become_user: dbuchan
-#   become_method: sudo
-#   roles:
-#     - automount
-#     - update nss and curl # yum update -y nss curl libcurl
-#   vars_files:
-#     - secrets/staging_secrets.yaml
+- name: Set up mount point
+  hosts: everyone
+  become: true
+  become_user: dbuchan
+  become_method: sudo
+  roles:
+    - common
+  vars_files:
+    - secrets/production_secrets.yml
 #
 
 - name: Apply the redis configuration
