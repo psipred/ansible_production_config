@@ -16,6 +16,10 @@
         - python-psycopg2
         - libpqxx
         - postgresql-devel
+        - httpd
+        - httpd-devel
+        - mod_wsgi
+        - readline-devel
       state: latest
     become_user: root
     become_method: sudo
