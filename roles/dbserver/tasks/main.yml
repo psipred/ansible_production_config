@@ -1,0 +1,161 @@
+---
+
+  - name: Install postgreSQL
+    yum:
+      pkg: postgresql, postgresql-server, postgresql-contrib
+      state: latest
+    become_user: root
+    become_method: sudo
+    register: postgres_installed
+
+  - name: Get the current firewalld rules
+    shell: firewall-cmd --list-all
+    register: firewalldrules
+    check_mode: no
+    become_user: root
+    become_method: sudo
+
+  - name: Add Postgres firewalld rules
+    command: firewall-cmd --zone=public --add-port=5432/tcp --permanent
+    become_user: root
+    become_method: sudo
+    when: firewalldrules.stdout.find("5432/tcp") == -1
+
+  - name: Add http firewalld rules
+    command: firewall-cmd --zone=public --add-service=http --permanent
+    become_user: root
+    become_method: sudo
+    when: firewalldrules.stdout.find("http") == -1
+
+  - name: Enable firewalld port forwarding
+    command: firewall-cmd --zone=public --add-masquerade --permanent
+    become_user: root
+    become_method: sudo
+    when: firewalldrules.stdout.find("http") == -1
+
+  - name: Portforward 80 to 8000
+    command: firewall-cmd --zone=public --add-forward-port=port=80:proto=tcp:toport=8000 --permanent
+    become_user: root
+    become_method: sudo
+    when: firewalldrules.stdout.find("http") == -1
+
+  - name: Portforward 443 to 4433
+    command: firewall-cmd --zone=public --add-forward-port=port=443:proto=tcp:toport=4433 --permanent
+    become_user: root
+    become_method: sudo
+
+  - name: Reload firewalld
+    command: firewall-cmd --reload
+    become_user: root
+    become_method: sudo
+
+  - name: Check if postgresDB location exists
+    stat: "path={{ postgres_db_path }}"
+    register: postgresDB_exist
+
+  - name: Make postgres db directory
+    file:
+      path: "{{ postgres_db_path }}"
+      state: directory
+      owner: "{{ postgres_user }}"
+    when: postgresDB_exist.stat.exists == False
+    become_user: root
+    become_method: sudo
+
+  - name: Initialise postgresDB
+    shell: "/bin/initdb -D {{ postgres_db_path }}"
+    become_user: "{{ postgres_user }}"
+    when: postgresDB_exist.stat.exists == False
+
+  # Instead of only doing this once set up we could copy the files whenever
+  # then change and then restart postgres
+  - name: Copy postgres config
+    copy:
+      src: files/web_server_postgresql.conf
+      dest: "{{  postgres_db_path }}/postgresql.conf"
+      owner: "{{ postgres_user }}"
+    when: postgresDB_exist.stat.exists == False
+    become_user: root
+    become_method: sudo
+
+  - name: Copy hba config
+    copy:
+      src: files/web_server_pg_hba.conf
+      dest: "{{  postgres_db_path }}/pg_hba.conf"
+      owner: "{{ postgres_user }}"
+    when: postgresDB_exist.stat.exists == False
+    become_user: root
+    become_method: sudo
+
+  - name: Check postgres status
+    shell: ps aux | grep postgres
+    register: postgres_running
+    check_mode: no
+
+  - name: Start postgresDB
+    shell: "pg_ctl start -D {{ postgres_db_path }}"
+    register: postgres_started
+    become_user: "{{ postgres_user }}"
+    when: postgres_running.stdout.find("/usr/bin/postgres") == -1
+
+  - name: Restart postgresDB
+    shell: "pg_ctl restart -D {{ postgres_db_path }}"
+    register: postgres_restarted
+    become_user: "{{ postgres_user }}"
+    when: postgres_installed.changed == True
+    # if this is run it should trigger a
+    # restart of the webserver AND the workers
+
+  - name: "Create {{ a_a_db }} db"
+    postgresql_db:
+      name: "{{ a_a_db }}"
+
+  - name: "Add {{ a_a_user }} to postgres"
+    postgresql_user:
+      name: "{{ a_a_user }}"
+      password: "{{ a_a_password }}"
+      role_attr_flags: CREATEDB
+      db: "{{ a_a_db }}"
+      priv: ALL
+
+  - name: "Create {{ web_db }} db"
+    postgresql_db:
+      name: "{{ web_db }}"
+
+  - name: "Add {{ web_db_user }} to postgres"
+    postgresql_user:
+      name: "{{ web_db_user }}"
+      password: "{{ web_db_password }}"
+      role_attr_flags: CREATEDB
+      db: "{{ web_db }}"
+      priv: ALL
+
+  - name: "Create {{ b_c_db }} db"
+    postgresql_db:
+      name: "{{ b_c_db }}"
+
+  - name: "Add {{ b_c_user }} to postgres"
+    postgresql_user:
+      name: "{{ b_c_user }}"
+      password: "{{ b_c_password }}"
+      role_attr_flags: CREATEDB
+      db: "{{ b_c_db }}"
+      priv: ALL
+
+  - name: "Enable hstore for {{ b_c_db }}"
+    postgresql_ext:
+      db: "{{ b_c_db }}"
+      name: hstore
+
+  - name: copy over the postgresql systemd service
+    become_user: root
+    become_method: sudo
+    copy:
+      src: files/postgresql.service
+      dest: /etc/systemd/system/
+      mode: "uog+x"
+
+  - name: Add postgres to systemctl
+    become_user: root
+    become_method: sudo
+    shell: systemctl enable postgresql.service
