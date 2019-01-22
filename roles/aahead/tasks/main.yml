@@ -83,7 +83,7 @@
       dest: "{{ django_aa_home }}/analytics_automated/analytics_automated_project/settings/"
       owner: "{{ django_aa_user }}"
 
-  - name: Copy aa staging secrets
+  - name: Copy aa production secrets
     become_user: "{{ django_aa_user }}"
     copy:
       src: secrets/production_secrets.json
@@ -103,6 +103,14 @@
       src: files/wsgi.py
       dest: "{{ django_aa_home }}/analytics_automated/analytics_automated_project/"
       owner: "{{ django_aa_user }}"
+
+  - name: Copy celery config
+    become_user: "{{ django_aa_user }}"
+    copy:
+      src: files/celery_production.py
+      dest: "{{ django_aa_home }}/analytics_automated/analytics_automated_project/celery.py"
+      owner: "{{ django_aa_user }}"
+
 
   - name: Make aa logging dir
     become_user: "{{ django_aa_user }}"
@@ -181,6 +189,8 @@
       state: directory
       owner: "{{ django_aa_user }}"
       group: apache
+    become_user: root
+    become_method: sudo
 
   - name : Configure AA/Apache
     shell: "source {{ django_aa_home }}aa_env/bin/activate; python3 manage.py runmodwsgi --settings=analytics_automated_project.settings.production --setup-only --user django_aa --group apache --threads=10 --processes=4 --reload-on-changes --server-root=/opt/aa_httpd/"
@@ -191,7 +201,7 @@
     when: aa_running.stdout.find("httpd (mod_wsgi-express)") == -1
 
   - name : add AA admin account
-    shell: "source {{ django_aa_home }}aa_env/bin/activate; echo \"from django.contrib.auth.models import User; User.objects.filter(username='admin').delete(); User.objects.create_superuser('admin', 'a@b.com', '{{ aa_admin_pass }}')\" | python3.4 manage.py shell --settings=analytics_automated_project.settings.production"
+    shell: "source {{ django_aa_home }}aa_env/bin/activate; echo \"from django.contrib.auth.models import User; User.objects.filter(username='admin').delete(); User.objects.create_superuser('admin', 'a@b.com', '{{ aa_admin_pass }}')\" | python3 manage.py shell --settings=analytics_automated_project.settings.production"
     args:
       chdir: "{{ django_aa_home }}analytics_automated"
     become_user: "{{ django_aa_user }}"
