@@ -36,17 +36,19 @@
 #   vars_files:
 #     - secrets/production_secrets.yaml
 #
-- name: Apply Analytics Automated head node configuration
-  hosts: aa_head
-  become: true
-  become_user: dbuchan
-  become_method: sudo
-  roles:
-    #- djangomachine
-    - aahead
-  vars_files:
-    - secrets/production_secrets.yaml
+# - name: Apply Analytics Automated head node configuration
+#   hosts: aa_head
+#   become: true
+#   become_user: dbuchan
+#   become_method: sudo
+#   roles:
+#     - djangomachine
+#     - aahead
+#   vars_files:
+#     - secrets/production_secrets.yaml
 
+
+## SUPERSEDED BY celery_worker_node BELOW:
 # - name: Apply Analytics Automated worker node configuration
 #   hosts: aa_workers
 #   become: true
@@ -56,7 +58,7 @@
 #     - djangomachine
 #     - aaworker
 #   vars_files:
-#     - secrets/staging_secrets.yaml
+#     - secrets/production_secrets.yaml
 
 # - name: Create blastmachine
 #   hosts: blastmachine
@@ -64,11 +66,11 @@
 #   become_user: root
 #   become_method: sudo
 #   roles:
-#     # - blastworkers
-#     # - djangomachine
+#     - djangomachine
+#     - blastworkers
 #     - blastmachine
 #   vars_files:
-#     - secrets/staging_secrets.yaml
+#     - secrets/production_secrets.yaml
 
 # - name: Create blast_cache machine
 #   hosts: blast_cache
@@ -76,38 +78,38 @@
 #   become_user: root
 #   become_method: sudo
 #   roles:
-#     # - djangomachine
+#     - djangomachine
 #     - blastcache
 #   vars_files:
-#     - secrets/staging_secrets.yaml
+#     - secrets/production_secrets.yaml
 
 # mempack won't compile in OSX
 # domThreader seg faults in OSX
 
-# - name: Create Celery worker node
-#   hosts: celery_worker_node
-#   become: true
-#   become_user: root
-#   become_method: sudo
-#   roles:
-#     - djangomachine
-#     - aaworker
-#     - psipred
-#     - disopred
-#     - memsatsvm
-#     - pGenTHREADER # installed to /webdata due to space on bioinfstage4
-#     - model_parts # get the bits for the frontend simple modelling
-#     - dompred # installed to /webdata due to space on bioinfstage4
-#     - mempack
-#     - bioserf
-#     - ffpred
-#     - metapsicov
-#     - metsite
-#     - hspred
-#     - memembed
-#     - maketdb
-#   vars_files:
-#     - secrets/staging_secrets.yaml
+- name: Create Celery worker node
+  hosts: celery_worker_node
+  become: true
+  become_user: root
+  become_method: sudo
+  roles:
+    - djangomachine
+    - aaworker
+    - psipred
+    - disopred
+    - memsatsvm
+    - pGenTHREADER # installed to /webdata due to space on bioinfstage4
+    - model_parts # get the bits for the frontend simple modelling
+    - dompred # installed to /webdata due to space on bioinfstage4
+    - mempack
+    - bioserf
+    - ffpred
+    - metapsicov
+    - metsite
+    - hspred
+    - memembed
+    - maketdb
+  vars_files:
+    - secrets/staging_secrets.yaml
 #
 # - name: Update Seq DBs
 #   hosts: update_seq
@@ -148,8 +150,6 @@
 #     - cleardb
 #   vars_files:
 #     - secrets/staging_secrets.yaml
-
-
 
 # - name: Install webserver
 #   hosts: webserver
