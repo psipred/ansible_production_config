@@ -1,19 +1,19 @@
 ---
 
   - name: Check if disopred installed
-    stat: path=/opt/disopred
+    stat: path=/data/disopred
     register: disopred_exist
 
   - name : Check Out DISOPRED from GIT
     when: disopred_exist.stat.exists == False
     git:
       repo: https://github.com/psipred/disopred.git
-      dest: /opt/disopred
+      dest: /data/disopred
       clone: yes
       force: yes
 
   # - name: Download dso_lib
-  #   shell: "chdir=/opt/disopred wget --timeout 120 http://bioinfadmin.cs.ucl.ac.uk/downloads/DISOPRED/dso_lib.tar.gz -O dso_lib.tar.gz"
+  #   shell: "chdir=/data/disopred wget --timeout 120 http://bioinfadmin.cs.ucl.ac.uk/downloads/DISOPRED/dso_lib.tar.gz -O dso_lib.tar.gz"
   #   register: get_url_result
     # until: get_url_result.stdout.find("Unable to establish SSL connection") == -1
     # retries: 2
@@ -24,25 +24,25 @@
     when: disopred_exist.stat.exists == False
     get_url:
       url: http://bioinfadmin.cs.ucl.ac.uk/downloads/DISOPRED/dso_lib.tar.gz
-      dest: /opt/disopred/
+      dest: /data/disopred/
       timeout: 120
     register: get_url_result
 
   - name: untar dso_lib
     when: disopred_exist.stat.exists == False
     unarchive:
-      src: /opt/disopred/dso_lib.tar.gz
-      dest: /opt/disopred
+      src: /data/disopred/dso_lib.tar.gz
+      dest: /data/disopred
       remote_src: yes
 
   - name: clean disopred components
     when: disopred_exist.stat.exists == False
-    shell: 'cd /opt/disopred/src; make clean'
+    shell: 'cd /data/disopred/src; make clean'
 
   - name: make disopred components
     when: disopred_exist.stat.exists == False
-    shell: 'cd /opt/disopred/src; make'
+    shell: 'cd /data/disopred/src; make'
 
   - name: install disopred components
     when: disopred_exist.stat.exists == False
-    shell: 'cd /opt/disopred/src; make install'
+    shell: 'cd /data/disopred/src; make install'

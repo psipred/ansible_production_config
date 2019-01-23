@@ -1,0 +1,101 @@
+---
+#
+# INSTALLING TO /webdata as we are out of room in /data ffs
+#
+#
+  - name: Check if pgenthreader is installed
+    stat: path=/data/pgenthreader/GenThreader.sh
+    register: pgenthreader_exist
+
+  - name : Check Out pGenTHREADER from git
+    #when: pgenthreader_exist.stat.exists == False
+    git:
+      repo: https://github.com/psipred/pGenTHREADER.git
+      dest: /data/pgenthreader
+      clone: yes
+      force: yes
+  #
+  # - name: Download foldlib
+  #   when: pgenthreader_exist.stat.exists == False
+  #   shell: "chdir=/data/pgenthreader wget --timeout 120 http://bioinfadmin.cs.ucl.ac.uk/downloads/pGenTHREADER/foldlibs/foldlib.tar.gz"
+  #   register: get_url_result
+    # until: get_url_result.stdout.find("Unable to establish SSL connection") == -1
+    # retries: 2
+    # delay: 10
+    # when: pip_install.stdout.find("from /usr/lib/python3.4/site-packages (python 3.4)") == -1
+
+  - name: Download foldlib
+    when: pgenthreader_exist.stat.exists == False
+    get_url:
+      url: http://bioinfadmin.cs.ucl.ac.uk/downloads/pGenTHREADER/foldlibs/foldlib.tar.gz
+      dest: /data/pgenthreader/
+      timeout: 120
+    register: get_url_result
+
+  # - name: Download domainlib
+  #   when: pgenthreader_exist.stat.exists == False
+  #   shell: "chdir=/data/pgenthreader wget --timeout 120 http://bioinfadmin.cs.ucl.ac.uk/downloads/pGenTHREADER/foldlibs/cath_3_5_domainlib.tar.gz"
+  #   register: get_url_result
+    # until: get_url_result.stdout.find("Unable to establish SSL connection") == -1
+    # retries: 2
+    # delay: 10
+    # when: pip_install.stdout.find("from /usr/lib/python3.4/site-packages (python 3.4)") == -1
+
+  - name: Download domainlib
+    when: pgenthreader_exist.stat.exists == False
+    get_url:
+      url: http://bioinfadmin.cs.ucl.ac.uk/downloads/pGenTHREADER/foldlibs/cath_domain_tdb_4_1.tar.gz
+      dest: /data/pgenthreader/
+      timeout: 120
+    register: get_url_result
+
+  - name: make foldlib dir
+    when: pgenthreader_exist.stat.exists == False
+    shell: "mkdir /data/pgenthreader/tdb/"
+
+
+  # - name: untar foldlib
+  #   when: pgenthreader_exist.stat.exists == False
+  #   shell: "cd /data/pgenthreader; tar -C /webdata/pgenthreader/tdb/ -zxvf foldlib.tar.gz"
+
+  - name: untar foldlib
+    when: pgenthreader_exist.stat.exists == False
+    unarchive:
+      src: /data/pgenthreader/foldlib.tar.gz
+      dest: /data/pgenthreader/tdb/
+      remote_src: yes
+
+  # - name: untar domainlib
+  #   when: pgenthreader_exist.stat.exists == False
+  #   shell: "cd /data/pgenthreader; tar -zxvf cath_3_5_domainlib.tar.gz"
+
+  - name: untar domainlib
+    when: pgenthreader_exist.stat.exists == False
+    unarchive:
+      src: /data/pgenthreader/cath_domain_tdb_4_1.tar.gz
+      dest: /data/pgenthreader/
+      remote_src: yes
+
+# COPY PSICHAINS LIST TO CATH_DOM_LIST
+
+  - name: psichain list to data
+    command: mv /data/pgenthreader/tdb/psichain.lst /data/pgenthreader/data/
+
+  - name: move cath dom list to data
+    command: mv /data/pgenthreader/cath_domain_tdb/psichains.lst /data/pgenthreader/data/
+
+  - name: make the binaries
+    when: pgenthreader_exist.stat.exists == False
+    shell: "cd /data/pgenthreader/src; make"
+
+  - name: install the binaries
+    when: pgenthreader_exist.stat.exists == False
+    shell: "cd /data/pgenthreader/src; make install"
+
+  - name: Download CSA
+    #when: pgenthreader_exist.stat.exists == False
+    get_url:
+      url: https://www.ebi.ac.uk/thornton-srv/m-csa/media/flat_files/literature_pdb_residues.csv
+      dest: /data/pgenthreader/data
+      timeout: 120
+    register: get_url_result

@@ -51,20 +51,20 @@
 #    shell: "cpan -i L/LD/LDS/GD-2.56.tar.gz"
 
   - name: Check if memsatsvm is installed
-    stat: path=/opt/memsat-svm
+    stat: path=/data/memsat-svm
     register: memsat_exist
 
   - name : Check Out MEMSATSVM from GIT
     when: memsat_exist.stat.exists == False
     git:
       repo: https://github.com/psipred/MemSatSVM.git
-      dest: /opt/memsat-svm
+      dest: /data/memsat-svm
       clone: yes
       force: yes
 
   # - name: Download memsat model data
   #   when: memsat_exist.stat.exists == False
-  #   shell: "chdir=/opt/memsat-svm wget --timeout 120 http://bioinfadmin.cs.ucl.ac.uk/downloads/memsat-svm/models.tar.gz"
+  #   shell: "chdir=/data/memsat-svm wget --timeout 120 http://bioinfadmin.cs.ucl.ac.uk/downloads/memsat-svm/models.tar.gz"
   #   register: get_url_result
     # until: get_url_result.stdout.find("Unable to establish SSL connection") == -1
     # retries: 2
@@ -75,16 +75,16 @@
     when: memsat_exist.stat.exists == False
     get_url:
       url: http://bioinfadmin.cs.ucl.ac.uk/downloads/memsat-svm/models.tar.gz
-      dest: /opt/memsat-svm
+      dest: /data/memsat-svm
       timeout: 120
     register: get_url_result
 
   - name: untar memsat model data
     when: memsat_exist.stat.exists == False
     unarchive:
-      src: /opt/memsat-svm/models.tar.gz
-      dest: /opt/memsat-svm/
+      src: /data/memsat-svm/models.tar.gz
+      dest: /data/memsat-svm/
       remote_src: yes
 
   - name: make binaries
-    shell: "cd /opt/memsat-svm; make"
+    shell: "cd /data/memsat-svm; make"
