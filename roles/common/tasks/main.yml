@@ -5,6 +5,16 @@
     become_user: root
     become_method: sudo
 
+  - name: get nux gpg-key
+    shell: rpm --import http://li.nux.ro/download/nux/RPM-GPG-KEY-nux.ro
+    become_user: root
+    become_method: sudo
+
+  - name: Add nux repo
+    shell: rpm -Uvh http://li.nux.ro/download/nux/dextop/el7/x86_64/nux-dextop-release-0-5.el7.nux.noarch.rpm
+    become_user: root
+    become_method: sudo
+
   - name: Update core packages
     yum:
       name:
