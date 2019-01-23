@@ -1,0 +1,90 @@
+---
+
+  - name: Install libgd
+    yum:
+      pkg: gd
+      state: latest
+    become_user: root
+    become_method: sudo
+
+  - name: Install libgd-devel
+    yum:
+      pkg: gd-devel
+      state: latest
+    become_user: root
+    become_method: sudo
+
+  - name: Install Round.pm
+    become_user: root
+    become_method: sudo
+    cpanm:
+      name: Math::Round
+      mirror: http://cpan.mirror.triple-it.nl/
+
+  - name: Install CPAN::Meta::YAML
+    become_user: root
+    become_method: sudo
+    cpanm:
+      name: CPAN::Meta::YAML
+      mirror: http://cpan.mirror.triple-it.nl/
+
+  - name: Install JSON::PP
+    become_user: root
+    become_method: sudo
+    cpanm:
+      name: JSON::PP
+      mirror: http://cpan.mirror.triple-it.nl/
+
+# "sudo cpan -i L/LD/LDS/GD-2.56.tar.gz"
+  # - name: Install GD.pm
+  #   become_user: root
+  #   become_method: sudo
+  #   cpanm:
+  #     name: GD
+  #     version: '2.56'
+  #     mirror: http://cpan.mirror.triple-it.nl/
+
+  - name: make GD binaries
+    shell: "cpan -i R/RU/RURBAN/GD-2.57.tar.gz"
+    become_user: root
+    become_method: sudo
+#    shell: "cpan -i L/LD/LDS/GD-2.56.tar.gz"
+
+  - name: Check if memsatsvm is installed
+    stat: path=/opt/memsat-svm
+    register: memsat_exist
+
+  - name : Check Out MEMSATSVM from GIT
+    when: memsat_exist.stat.exists == False
+    git:
+      repo: https://github.com/psipred/MemSatSVM.git
+      dest: /opt/memsat-svm
+      clone: yes
+      force: yes
+
+  # - name: Download memsat model data
+  #   when: memsat_exist.stat.exists == False
+  #   shell: "chdir=/opt/memsat-svm wget --timeout 120 http://bioinfadmin.cs.ucl.ac.uk/downloads/memsat-svm/models.tar.gz"
+  #   register: get_url_result
+    # until: get_url_result.stdout.find("Unable to establish SSL connection") == -1
+    # retries: 2
+    # delay: 10
+    # when: pip_install.stdout.find("from /usr/lib/python3.4/site-packages (python 3.4)") == -1
+
+  - name: Download memsat tar ball
+    when: memsat_exist.stat.exists == False
+    get_url:
+      url: http://bioinfadmin.cs.ucl.ac.uk/downloads/memsat-svm/models.tar.gz
+      dest: /opt/memsat-svm
+      timeout: 120
+    register: get_url_result
+
+  - name: untar memsat model data
+    when: memsat_exist.stat.exists == False
+    unarchive:
+      src: /opt/memsat-svm/models.tar.gz
+      dest: /opt/memsat-svm/
+      remote_src: yes
+
+  - name: make binaries
+    shell: "cd /opt/memsat-svm; make"

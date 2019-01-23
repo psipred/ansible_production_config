@@ -15,7 +15,7 @@
 #     - common
 #   vars_files:
 #     - secrets/production_secrets.yaml
-#
+
 # - name: Apply the redis configuration
 #   hosts: redis
 #   become: true
@@ -93,10 +93,10 @@
   become_method: sudo
   roles:
     # - djangomachine
-    - aaworker
+    # - aaworker
     # - psipred
     # - disopred
-    # - memsatsvm
+    - memsatsvm
     # - pGenTHREADER # installed to /webdata due to space on bioinfstage4
     # - model_parts # get the bits for the frontend simple modelling
     # - dompred # installed to /webdata due to space on bioinfstage4
