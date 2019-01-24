@@ -1,0 +1,250 @@
+  - name: Check modeller is present
+    stat: path=/data/modeller9.17
+    register: modeller_exist
+
+  - name: Download modeller
+    when: modeller_exist.stat.exists == False
+    get_url:
+      url: https://salilab.org/modeller/9.17/modeller-9.17.tar.gz
+      dest: /data/
+      timeout: 120
+    register: get_url_result
+
+  - name: unarchive modeller
+    when: modeller_exist.stat.exists == False
+    unarchive:
+      src: /data/modeller-9.17.tar.gz
+      dest: /data/
+      remote_src: yes
+
+  - name: Move hacked install script over
+    # when: maketdb_exist.stat.exists == False
+    copy:
+      src: secrets/modeller_Install
+      dest: /data/modeller-9.17/Install
+      mode: "uog+x"
+
+  - name: install modeller
+    when: modeller_exist.stat.exists == False
+    shell: "cd /data/modeller-9.17; ./Install"
+
+  - name: Check cmake is present
+    stat: path=/data/cmake-3.6.2/
+    register: cmake_exist
+
+  # - name: Download cmake
+  #   when: cmake_exist.stat.exists == False
+  #   get_url:
+  #     url: https://cmake.org/files/v3.6/cmake-3.6.2.tar.gz
+  #     dest: /data/
+  #     timeout: 120
+  #   register: get_url_result
+
+  #ansible will not get this with the get_url plugin!
+  - name: Download cmake
+    when: cmake_exist.stat.exists == False
+    shell: "cd /data; wget https://cmake.org/files/v3.6/cmake-3.6.2.tar.gz"
+
+  - name: unarchive cmake
+    when: cmake_exist.stat.exists == False
+    unarchive:
+      src: /data/cmake-3.6.2.tar.gz
+      dest: /data/
+      remote_src: yes
+
+  - name: build and install cmake
+    when: cmake_exist.stat.exists == False
+    shell: "cd /data/cmake-3.6.2; ./bootstrap --prefix=/data/local/ && make && make install"
+
+  - name: Check HHSuite is present
+    stat: path=/data/hh-suite
+    register: hhsuite_exist
+
+  - name : Check out HHSuite from GIT
+    when: hhsuite_exist.stat.exists == False
+    git:
+      repo: https://github.com/soedinglab/hh-suite.git
+      dest: /data/hh-suite
+      clone: yes
+      force: yes
+
+  - name: make build dir
+    when: hhsuite_exist.stat.exists == False
+    shell: "cd /data/hh-suite; mkdir build"
+
+  - name: cmake hhsuite
+    when: hhsuite_exist.stat.exists == False
+    shell: 'cd /data/hh-suite/build; /data/local/bin/cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo -G "Unix Makefiles" -DCMAKE_INSTALL_PREFIX=/data/local/ ..'
+
+  - name: make hhsuite
+    when: hhsuite_exist.stat.exists == False
+    shell: 'cd /data/hh-suite/build; make'
+
+  - name: install hhsuite
+    when: hhsuite_exist.stat.exists == False
+    shell: 'cd /data/hh-suite/build; make install'
+
+  - name: Move fixed HHMake model
+    when: hhsuite_exist.stat.exists == False
+    copy:
+      src: files/hhmakemodel.pl
+      dest: /data/hh-suite/scripts/
+      mode: "uog+rwx"
+
+  - name: Move hacked HHPaths over
+    when: hhsuite_exist.stat.exists == False
+    copy:
+      src: files/HHPaths.pm
+      dest: /data/hh-suite/scripts/
+      mode: "uog+rwx"
+
+  - name: Check bioserf package is available
+    stat: path=/data/bioserf
+    register: bioserf_exist
+
+  - name : Check out bioserf from GIT
+    when: bioserf_exist.stat.exists == False
+    git:
+      repo: https://github.com/psipred/bioserf.git
+      dest: /data/bioserf
+      clone: yes
+      force: yes
+
+
+  #just in case we need to upgrade these
+  - name: upgrade all packages
+    yum:
+      name: java, java-1.8.0-openjdk
+      state: latest
+
+  # - name: remove stale java class files
+  #   shell: /bin/rm /data/bioserf/src/org/ucl/util/*.class
+
+  - name: make bioserf components
+    when: bioserf_exist.stat.exists == False
+    shell: 'cd /data/bioserf/src; make'
+
+  - name: install bioserf components
+    when: bioserf_exist.stat.exists == False
+    shell: 'cd /data/bioserf/src; make install'
+
+  - name: Check cath_data is present
+    stat: path=/data/cath_data
+    register: cath_exist
+
+  - name: make cath_data dir
+    shell: "cd /data; mkdir cath_data"
+    when: cath_exist.stat.exists == False
+
+  - name: Move annotated CATH list over
+    # when: maketdb_exist.stat.exists == False
+    when: cath_exist.stat.exists == False
+    copy:
+      src: files/cath-domain-list-v4_2_0_annotated.txt
+      dest: /data/cath_data/
+      mode: "uog+rwx"
+
+  - name: Check cath s100 seqs are present
+    stat: path=/data/cath_data/cath-domain-seqs-S100-v4_1_0.fa.phr
+    register: s100_exist
+
+  - name: Download cath s100
+    when: s100_exist.stat.exists == False
+    shell: "cd /data/cath_data/; wget ftp://orengoftp.biochem.ucl.ac.uk/cath/releases/all-releases/v4_1_0/sequence-data/cath-domain-seqs-S100-v4_1_0.fa"
+
+  - name: Check cath dompdb
+    stat: path=/data/cath_data/dompdb
+    register: dompdb_exist
+
+  - name: Download dompdb
+    when: dompdb_exist.stat.exists == False
+    shell: "cd /data/cath_data/; wget ftp://orengoftp.biochem.ucl.ac.uk/cath/releases/all-releases/v4_1_0/non-redundant-data-sets/cath-dataset-nonredundant-S40-v4_1_0.pdb.tgz"
+
+  - name: untar
+    when: dompdb_exist.stat.exists == False
+    shell: "cd /data/cath_data/; tar -xzvf cath-dataset-nonredundant-S40-v4_1_0.pdb.tgz"
+
+  - name: Check if we the blast is installed
+    stat: path=/data/ncbi-blast-2.7.1+/
+    register: blastp_exist
+
+  - name: Download BLAST+ tarball
+    when: blastp_exist.stat.exists == False
+    get_url:
+      url: ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.7.1/ncbi-blast-2.7.1+-x64-linux.tar.gz
+      dest: /data/
+      timeout: 120
+    register: get_url_result
+
+  - name: unarchive blast
+    when: blastp_exist.stat.exists == False
+    unarchive:
+      src: /data/ncbi-blast-2.7.1+-x64-linux.tar.gz
+      dest: /data/
+      remote_src: yes
+
+  - name: Check if we the psiblast is installed
+    stat: path=/data/blast-2.2.26/bin/blastpgp
+    register: blastpgp_exist
+
+  - name: Download BLAST+ tarball
+    when: blastpgp_exist.stat.exists == False
+    get_url:
+      url: ftp://ftp.ncbi.nlm.nih.gov/blast/executables/legacy.NOTSUPPORTED/2.2.26/blast-2.2.26-x64-linux.tar.gz
+      dest: /data/
+      timeout: 120
+    register: get_url_result
+
+  - name: unarchive blast
+    when: blastpgp_exist.stat.exists == False
+    unarchive:
+      src: /data/blast-2.2.26-x64-linux.tar.gz
+      dest: /data/
+      remote_src: yes
+
+  - name: build blast db
+    when: s100_exist.stat.exists == False
+    shell: "cd /data/cath_data/; /data/ncbi-blast-2.7.1+/bin/makeblastdb -in cath-domain-seqs-S100-v4_1_0.fa -dbtype prot"
+
+
+# get a copy of the pdb
+# run makepdbaa to produce pdb_aa.fasta
+# run makeblastdb over pdb_aa.fasta
+
+# get CathDomainSeqs.S100.ATOM now at http://download.cathdb.info/cath/releases/latest-release/sequence-data/cath-domain-seqs-S100.fa
+# run makeblastdb over this to make blast - this should be in blast install
+# uptodate tdb and dom_tdb see genthreader install
+
+# CathDomainSummary_3.5 this is parsed from the http://download.cathdb.info/cath/releases/latest-release/cath-classification-data/cath-domain-list.txt
+#
+#
+
+
+  - name: Check if we have pdbaa
+    stat:
+      path: /data/pdb/pdbaa.phr
+      get_md5: false
+      get_checksum: false
+    register: pdbaa_exist
+
+  - name: Make pdb dir
+    file:
+      path: /data/pdb/
+      state: directory
+    when: pdbaa_exist.stat.exists == False
+
+  - name: Download pdbaa
+    shell: "chdir=/data/pdb wget --timeout 120 http://dunbrack.fccc.edu/Guoli/culledpdb_hh/pdbaa.gz"
+    register: get_url_result
+    # until: get_url_result.stdout.find("Unable to establish SSL connection") == -1
+    # retries: 2
+    # delay: 10
+    when: pdbaa_exist.stat.exists == False
+
+  - name: unzip pdbaa
+    shell: cd /data/pdb; /bin/gunzip pdbaa.gz
+    when: pdbaa_exist.stat.exists == False
+
+  - name: Run formatdb
+    shell: cd /data/pdb; /data/ncbi-blast-2.7.1+/bin/makeblastdb -in pdbaa -dbtype prot
+    when: pdbaa_exist.stat.exists == False

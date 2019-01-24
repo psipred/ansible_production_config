@@ -1,0 +1,363 @@
+#cSignalP
+# http://www.cbs.dtu.dk/services/SignalP/
+#NetPhos/ape-1.0
+# http://www.cbs.dtu.dk/services/NetPhos/
+#NETNGLYC
+# http://www.cbs.dtu.dk/services/NetNGlyc/
+#NetOGlyc
+# http://www.cbs.dtu.dk/services/NetOGlyc-3.1/
+#PSORT
+# https://github.com/fmaguire/WoLFPSort
+#COILS
+# http://www.russelllab.org/coils/
+#EMBOSS
+# http://emboss.sourceforge.net/
+
+---
+
+  - name: Install glibc.i686
+    yum:
+      pkg: glibc.i686
+      state: latest
+    become_user: root
+    become_method:
+
+  - name: Check if signalP is installed
+    stat: path=/data/signalp-4.1
+    register: signalp_exist
+
+  # - name: Download signalP
+  #   when: signalp_exist.stat.exists == False
+  #   shell: "chdir=/data/ wget --timeout 120 http://bioinfadmin.cs.ucl.ac.uk/downloads/ffpred_feature_suite/signalp-4.1e.Linux.tar.gz"
+  #   register: get_url_result
+
+  - name: Download signalP
+    when: signalp_exist.stat.exists == False
+    get_url:
+      url: http://bioinfadmin.cs.ucl.ac.uk/downloads/ffpred_feature_suite/signalp-4.1e.Linux.tar.gz
+      dest: /data/
+      timeout: 120
+    register: get_url_result
+
+  - name: untar signalp
+    when: signalp_exist.stat.exists == False
+    unarchive:
+      src: /data/signalp-4.1e.Linux.tar.gz
+      dest: /data/
+      remote_src: yes
+
+  - name: copy over the configured signalp script
+    when: signalp_exist.stat.exists == False
+    become_user: root
+    become_method: sudo
+    copy:
+      src: files/signalp
+      dest: /data/signalp-4.1
+      mode: "uog+x"
+
+  - name: Check if nephpos is installed
+    stat: path=/data/ape-1.0
+    register: netphos_exist
+
+  # - name: Download netphos
+  #   when: netphos_exist.stat.exists == False
+  #   shell: "chdir=/data/ wget --timeout 120 http://bioinfadmin.cs.ucl.ac.uk/downloads/ffpred_feature_suite/netphos-3.1.Linux.tar"
+  #   register: get_url_result
+
+  - name: Download netphos
+    when: netphos_exist.stat.exists == False
+    get_url:
+      url: http://bioinfadmin.cs.ucl.ac.uk/downloads/ffpred_feature_suite/netphos-3.1.Linux.tar
+      dest: /data/
+      timeout: 120
+    register: get_url_result
+
+  - name: untar netphos
+    when: netphos_exist.stat.exists == False
+    unarchive:
+      src: /data/netphos-3.1.Linux.tar
+      dest: /data/
+      remote_src: yes
+
+  # NOTE THE THE ARCHITECTURE DETECTION DOES NOT WORK IN THE APE SCRIPT FOR x86_64
+  - name: copy over the configured ape script
+    when: netphos_exist.stat.exists == False
+    become_user: root
+    become_method: sudo
+    copy:
+      src: files/ape
+      dest: /data/ape-1.0
+      mode: "uog+x"
+
+  - name: make exes work
+    when: netphos_exist.stat.exists == False
+    shell: 'cd /data/ape-1.0/bin; chmod uog+x *'
+
+  - name: Check if netNGlyc is installed
+    stat: path=/data/netNglyc-1.0
+    register: netnglyc_exist
+
+  # - name: Download netnglyc
+  #   when: netnglyc_exist.stat.exists == False
+  #   shell: "chdir=/data/ wget --timeout 120 http://bioinfadmin.cs.ucl.ac.uk/downloads/ffpred_feature_suite/netNglyc-1.0c.Linux.tar.Z"
+  #   register: get_url_result
+
+  - name: Download netnglyc
+    when: netnglyc_exist.stat.exists == False
+    get_url:
+      url: http://bioinfadmin.cs.ucl.ac.uk/downloads/ffpred_feature_suite/netNglyc-1.0c.Linux.tar.Z
+      dest: /data/
+      timeout: 120
+    register: get_url_result
+
+  - name: untar netNglyc
+    when: netnglyc_exist.stat.exists == False
+    unarchive:
+      src: /data/netNglyc-1.0c.Linux.tar.Z
+      dest: /data/
+      remote_src: yes
+
+  - name: copy over the configured netnglyc script
+    when: netnglyc_exist.stat.exists == False
+    become_user: root
+    become_method: sudo
+    copy:
+      src: files/netNglyc
+      dest: /data/netNglyc-1.0
+      mode: "uog+x"
+
+  - name: Check if netOGlyc is installed
+    stat: path=/data/netOglyc-3.1d
+    register: netoglyc_exist
+
+  # - name: Download netoglyc
+  #   when: netoglyc_exist.stat.exists == False
+  #   shell: "chdir=/data/ wget --timeout 120 http://bioinfadmin.cs.ucl.ac.uk/downloads/ffpred_feature_suite/netOglyc-3.1d.Linux.tar.Z"
+  #   register: get_url_result
+
+  - name: Download netoglyc
+    when: netoglyc_exist.stat.exists == False
+    get_url:
+      url: http://bioinfadmin.cs.ucl.ac.uk/downloads/ffpred_feature_suite/netOglyc-3.1d.Linux.tar.Z
+      dest: /data/
+      timeout: 120
+    register: get_url_result
+
+  - name: untar netOglyc
+    when: netoglyc_exist.stat.exists == False
+    unarchive:
+      src: /data/netOglyc-3.1d.Linux.tar.Z
+      dest: /data/
+      remote_src: yes
+
+  - name: copy over the configured netOglyc script
+    when: netoglyc_exist.stat.exists == False
+    become_user: root
+    become_method: sudo
+    copy:
+      src: files/netOglyc
+      dest: /data/netOglyc-3.1d
+      mode: "uog+x"
+
+  - name: copy over the configured fasta2howlin script
+    when: netoglyc_exist.stat.exists == False
+    become_user: root
+    become_method: sudo
+    copy:
+      src: files/fasta2howlin
+      dest: /data/netOglyc-3.1d/bin/
+      mode: "uog+x"
+
+  - name: Check if wolfpsort is installed
+    stat: path=/data/WoLFPSort-master
+    register: psort_exist
+
+  # - name: Download wolfpsort
+  #   when: psort_exist.stat.exists == False
+  #   shell: "chdir=/data/ wget --timeout 120 http://bioinfadmin.cs.ucl.ac.uk/downloads/ffpred_feature_suite/wolfpsort_0.2.zip"
+  #   register: get_url_result
+
+  - name: Download wolfpsort
+    when: psort_exist.stat.exists == False
+    get_url:
+      url: http://bioinfadmin.cs.ucl.ac.uk/downloads/ffpred_feature_suite/wolfpsort_0.2.zip
+      dest: /data/
+      timeout: 120
+    register: get_url_result
+
+  - name: untar wolfpsort
+    when: psort_exist.stat.exists == False
+    unarchive:
+      src: /data/wolfpsort_0.2.zip
+      dest: /data/
+      remote_src: yes
+
+  - name: copy over the configured runWold.sh script
+    when: psort_exist.stat.exists == False
+    become_user: root
+    become_method: sudo
+    copy:
+      src: files/runWolf.sh
+      dest: /data/WoLFPSort-master/bin/
+      mode: "uog+x"
+
+  - name: Check if coils is installed
+    stat: path=/data/coils
+    register: coils_exist
+
+  # - name: Download coils
+  #   when: coils_exist.stat.exists == False
+  #   shell: "chdir=/data/ wget --timeout 120 http://bioinfadmin.cs.ucl.ac.uk/downloads/ffpred_feature_suite/coils.tar.gz"
+  #   register: get_url_result
+
+  - name: Download coils
+    when: coils_exist.stat.exists == False
+    get_url:
+      url: http://bioinfadmin.cs.ucl.ac.uk/downloads/ffpred_feature_suite/coils.tar.gz
+      dest: /data/
+      timeout: 120
+    register: get_url_result
+
+  - name: untar coils
+    when: coils_exist.stat.exists == False
+    unarchive:
+      src: /data/coils.tar.gz
+      dest: /data/
+      remote_src: yes
+
+  - name: compile coils
+    shell: "cd /data/coils; cc -O2 -I. -o ncoils ncoils.c read_matrix.c -lm"
+    when: coils_exist.stat.exists == False
+#
+  - name: copy over the coils.sh script
+    when: coils_exist.stat.exists == False
+    become_user: root
+    become_method: sudo
+    copy:
+      src: files/coils.sh
+      dest: /data/coils
+      mode: "uog+x"
+
+  - name: Check if EMBOSS is installed
+    stat: path=/data/EMBOSS-6.4.0
+    register: emboss_exist
+
+# THIS DID NOT INSTALL CORRECTLY. configure needs a prefix AND the resulting
+# make file needs to be edited to remove jemboss from line 279
+
+  # - name: Download EMBOSS
+  #   when: emboss_exist.stat.exists == False
+  #   shell: "chdir=/data/ wget --timeout 120 http://bioinfadmin.cs.ucl.ac.uk/downloads/ffpred_feature_suite/EMBOSS-6.4.0.tar.gz"
+  #   register: get_url_result
+  - name: Download EMBOSS
+    when: emboss_exist.stat.exists == False
+    get_url:
+      url: http://bioinfadmin.cs.ucl.ac.uk/downloads/ffpred_feature_suite/EMBOSS-6.4.0.tar.gz
+      dest: /data/
+      timeout: 120
+    register: get_url_result
+
+  - name: untar emboss
+    when: emboss_exist.stat.exists == False
+    unarchive:
+      src: /data/EMBOSS-6.4.0.tar.gz
+      dest: /data/
+      remote_src: yes
+
+  - name: configure emboss
+    shell: "cd /data/EMBOSS-6.4.0; ./configure --prefix=/data/EMBOSS-6.4.0/"
+    when: emboss_exist.stat.exists == False
+
+  - name: edit Makefile
+    shell: "cd /data/EMBOSS-6.4.0; sed -i 's/SUBDIRS = plplot ajax nucleus emboss test doc jemboss/SUBDIRS = plplot ajax nucleus emboss test doc/g' Makefile"
+    when: emboss_exist.stat.exists == False
+
+  - name: make emboss
+    shell: "cd /data/EMBOSS-6.4.0; make"
+    when: emboss_exist.stat.exists == False
+
+  - name: install emboss
+    shell: "cd /data/EMBOSS-6.4.0; make install"
+    when: emboss_exist.stat.exists == False
+
+  - name: make emboss executable
+    shell: 'cd /data/EMBOSS-6.4.0/bin/; chmod uog+x *'
+
+  - name: Check if ffpred is installed
+    stat: path=/data/ffpred3
+    register: ffpred_exist
+
+  - name : Check Out FFPRED from GIT
+    when: ffpred_exist.stat.exists == False
+    git:
+      repo: https://github.com/psipred/FFPred4.git
+      dest: /data/ffpred3
+      clone: yes
+      force: yes
+
+  - name: Download ffpredSVMs
+    when: ffpred_exist.stat.exists == False
+    get_url:
+      url: http://bioinfadmin.cs.ucl.ac.uk/downloads/ffpred/SVMs.tar.gz
+      dest: /data/
+      timeout: 120
+    register: get_url_result
+
+  - name: Make SVMs dir
+    file:
+      path: /data/SVMs
+      state: directory
+    when: ffpred_exist.stat.exists == False
+
+  - name: untar ffpred SVMs
+    #when: ffpred_exist.stat.exists == False
+    unarchive:
+      src: /data/SVMs.tar.gz
+      dest: /data/SVMs
+      remote_src: yes
+
+  - name: remove SVM tarball
+    shell: "cd /data/; rm SVMs.tar.gz"
+    when: ffpred_exist.stat.exists == False
+
+  - name: Check if svm_light is installed
+    stat: path=/data/svm_light
+    register: svml_exist
+
+  - name: Make svm_light dir
+    file:
+      path: /data/svm_light
+      state: directory
+    when: svml_exist.stat.exists == False
+
+  - name: Download svm_light
+    when: svml_exist.stat.exists == False
+    get_url:
+      url: http://osmot.cs.cornell.edu/svm_light/v6.02/svm_light.tar.gz
+      dest: /data/svm_light/
+      timeout: 120
+    register: get_url_result
+
+  - name: untar svm_light
+    when: svml_exist.stat.exists == False
+    unarchive:
+      src: /data/svm_light/svm_light.tar.gz
+      dest: /data/svm_light/
+      remote_src: yes
+
+  - name: make svm_light
+    shell: 'cd /data/svm_light; make'
+
+  - name: copy over the CONFIG
+    become_user: root
+    become_method: sudo
+    copy:
+      src: files/CONFIG
+      dest: /data/ffpred3
+      mode: "uog+x"
+
+  - name: Add SVMs symlink to ffpred dirname
+    file:
+      src: /data/SVMs
+      dest: /data/ffpred3/SVMs
+      state: link

@@ -97,12 +97,12 @@
     # - psipred
     # - disopred
     # - memsatsvm
-    - pGenTHREADER
+    # - pGenTHREADER
     # - model_parts # get the bits for the frontend simple modelling
-    # - dompred # installed to /webdata due to space on bioinfstage4
+    # - dompred
     # - mempack
     # - bioserf
-    # - ffpred
+     - ffpred
     # - metapsicov
     # - metsite
     # - hspred

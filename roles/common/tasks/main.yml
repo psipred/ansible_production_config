@@ -33,6 +33,7 @@
         - readline-devel
         - perl-CPAN
         - perl-App-cpanminus.noarch
+        - wget
       state: latest
     become_user: root
     become_method: sudo

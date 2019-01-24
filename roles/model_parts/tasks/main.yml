@@ -1,0 +1,30 @@
+  - name: Check simple_modeller exists
+    stat: path=/data/simple_modeller
+    register: simple_modeller_exist
+
+  - name: Check out simple_modeller
+    when: simple_modeller_exist.stat.exists == False
+    git:
+      repo: https://github.com/psipred/simple_modeller.git
+      dest: /data/simple_modeller
+      clone: yes
+      force: yes
+
+  - name: install requests
+    when: simple_modeller_exist.stat.exists == False
+    shell: pip install requests
+
+  - name: Check PDB dir exists
+    stat: path=/data/pdb/
+    register: pdb_path_exist
+
+  - name: make PDB dir
+    when: pdb_path_exist.stat.exists == False
+    file:
+      path: /data/pdb
+      state: directory
+      mode: 0666
+      recurse: yes
+
+  - name: rsync the PDB
+    shell: "cd /data/pdb; rsync -rlpt -v -z --delete rsync.ebi.ac.uk::pub/databases/msd/pdb_uncompressed/ /data/pdb/"
