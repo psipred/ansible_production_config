@@ -54,6 +54,11 @@
       dest: /data
       remote_src: yes
 
+  - name: Install Env.pm
+    cpanm:
+      name: Env
+      mirror: http://cpan.mirror.triple-it.nl/
+
   - name: install tcoffee
     when: tcoffee_exist.stat.exists == False
     shell: "cd /data/T-COFFEE_distribution_Version_11.00.8cbe486/; ./install tcoffee"
