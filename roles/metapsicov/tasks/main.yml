@@ -1,0 +1,281 @@
+---
+  - name: Check if there is a dir for the HHpdb db
+    stat: path=/data/hhdb/pdb/
+    register: hhpdb_exist
+
+  - name : Create db dir
+    when: hhpdb_exist.stat.exists == False
+    file:
+      state: directory
+      path: /data/hhdb/pdb/
+      mode: ug+rwx
+
+  # Not doing it this way as we are highly space limited on the target devices
+  # - name: get HHSeach pdb70 db
+  #   when: hhpdb_exist.stat.exists == False
+  #   unarchive:
+  #     src: http://wwwuser.gwdg.de/~compbiol/data/hhsuite/databases/hhsuite_dbs/pdb70_14Sep16.tgz
+  #     dest: /data/hh-suite/hhdb/pdb/
+  #     remote_src: yes
+
+  - name: Download pdb70 db
+    when: hhpdb_exist.stat.exists == False
+    shell: "chdir=/data/hhdb/ wget --timeout 120 http://wwwuser.gwdg.de/~compbiol/data/hhsuite/databases/hhsuite_dbs/pdb70_from_mmcif_latest.tar.gz"
+    register: get_url_result
+    # until: get_url_result.stdout.find("Unable to establish SSL connection") == -1
+    # retries: 2
+    # delay: 10
+    # when: pip_install.stdout.find("from /usr/lib/python3.4/site-packages (python 3.4)") == -1
+
+  - name: unarchive HHSeach pdb70 db
+    when: hhpdb_exist.stat.exists == False
+    unarchive:
+      src: /data/hhdb/pdb70_from_mmcif_latest.tar.gz
+      dest: /data/hhdb/pdb
+      remote_src: yes
+
+  - name: Check if there is a file for the HHuniprot
+    stat:
+      path: /data/hhdb/uniclust30_2018_08.tar.gz
+      get_md5: false
+      get_checksum: false
+    register: hhuniprot_exist
+
+  - name : Create HH uniprot20 dir
+    when: hhuniprot_exist.stat.exists == False
+    file:
+      state: directory
+      path: /data/hhdb/uniprot/
+      mode: ug+rwx
+
+  - name: Download uniprot20 db
+    when: hhuniprot_exist.stat.exists == False
+    shell: "chdir=/data/hhdb/ wget --timeout 120 http://wwwuser.gwdg.de/~compbiol/uniclust/2018_08/uniclust30_2018_08.tar.gz"
+    register: get_url_result
+    # until: get_url_result.stdout.find("Unable to establish SSL connection") == -1
+    # retries: 2
+    # delay: 10
+    # when: pip_install.stdout.find("from /usr/lib/python3.4/site-packages (python 3.4)") == -1
+
+  - name: unpack HHSeach uniprot20 db
+    when: hhuniprot_exist.stat.exists == False
+    unarchive:
+      src: /data/hhdb/uniclust30_2018_08.tar.gz
+      dest: /data/hhdb/uniprot
+      remote_src: yes
+
+  - name: make dbs rw by all
+    shell: "chdir=/data/hhdb/ chmod -R uog+rw *"
+
+  - name: Check if there is a dir for the hmmr3
+    stat: path=/data/hmmer-3.1b2-linux-intel-x86_64/
+    register: hmmer_exist
+
+  - name: get hmmer
+    when: hmmer_exist.stat.exists == False
+    get_url:
+      url: http://eddylab.org/software/hmmer3/3.1b2/hmmer-3.1b2-linux-intel-x86_64.tar.gz
+      dest: /data/
+      timeout: 120
+    register: get_url_result
+    # until: get_url_result.stdout.find("Unable to establish SSL connection") == -1
+    # retries: 2
+    # delay: 10
+
+  - name: unarchive hmmer
+    when: hmmer_exist.stat.exists == False
+    unarchive:
+      src: /data/hmmer-3.1b2-linux-intel-x86_64.tar.gz
+      dest: /data/
+      remote_src: yes
+
+  - name: configure hmmer-3
+    when: hmmer_exist.stat.exists == False
+    shell: "cd /data/hmmer-3.1b2-linux-intel-x86_64/; ./configure"
+
+  - name: make hmmer-3
+    when: hmmer_exist.stat.exists == False
+    shell: "cd /data/hmmer-3.1b2-linux-intel-x86_64/; make"
+
+  - name: check we have blas
+    stat: path=/data/OpenBlas
+    register: blas_exist
+
+  - name : Check out blas from GIT
+    when: blas_exist.stat.exists == False
+    git:
+      repo: https://github.com/xianyi/OpenBLAS.git
+      dest: /data/OpenBlas
+      clone: yes
+      force: yes
+
+  - name: make OpenBlas
+    when: blas_exist.stat.exists == False
+    shell: "cd /data/OpenBlas/; make"
+
+  - name: install OpenBlas
+    when: blas_exist.stat.exists == False
+    shell: "cd /data/OpenBlas/; make install"
+
+  - name: check we have ccmpred
+    stat: path=/data/CCMpred
+    register: ccmpred_exist
+
+  - name : Check out ccmpred from GIT
+    when: ccmpred_exist.stat.exists == False
+    git:
+      repo: https://github.com/soedinglab/CCMpred
+      recursive: yes
+      dest: /data/CCMpred
+      clone: yes
+      force: yes
+
+  - name: cmake ccmpred
+    when: ccmpred_exist.stat.exists == False
+    shell: "cd /data/CCMpred/;  /data/local/bin/cmake ."
+
+  - name: make ccmpred
+    when: ccmpred_exist.stat.exists == False
+    shell: "cd /data/CCMpred/; make"
+
+  - name: Install freecontact dependencies
+    yum:
+      pkg: lapack, lapack-devel, lapack64, lapack64-devel, openblas-devel
+      state: latest
+
+  - name: check we have FreeContact
+    stat: path=/data/freecontact-1.0.21
+    register: freecontact_exist
+
+  - name: get freecontact
+    when: freecontact_exist.stat.exists == False
+    get_url:
+      url: ftp://rostlab.org/free/freecontact-1.0.21.tar.xz
+      dest: /data/
+      timeout: 120
+    register: get_url_result
+    # until: get_url_result.stdout.find("Unable to establish SSL connection") == -1
+    # retries: 2
+    # delay: 10
+
+  - name: unarchive freecontact
+    when: freecontact_exist.stat.exists == False
+    unarchive:
+      src: /data/freecontact-1.0.21.tar.xz
+      dest: /data/
+      remote_src: yes
+
+  - name: configure freecontact
+    when: freecontact_exist.stat.exists == False
+    shell: 'cd /data/freecontact-1.0.21/; ./configure CFLAGS=-I/data/OpenBLAS/include LIBS=-L/data/OpenBLAS/lib LDFLAGS=-L/data/OpenBLAS/lib CPPFLAGS=-I/data/OpenBLAS/include'
+
+  # - name: configure freecontact
+  #   when: freecontact_exist.stat.exists == False
+  #   shell: "cd /data/freecontact-1.0.21/; ./configure"
+    #run with env LD_LIBRARY_PATH=/data/OpenBLAS/lib/ src/freecontact
+
+  - name: cheat softlink
+    when: freecontact_exist.stat.exists == False
+    shell: "cd /data/freecontact-1.0.21/lib; for n in $(ls /usr/include/openblas/); do ln -sv /usr/include/openblas/$n $n; done"
+
+  - name: make freecontact
+    when: freecontact_exist.stat.exists == False
+    shell: "cd /data/freecontact-1.0.21/; ./make"
+    #run with env LD_LIBRARY_PATH=/data/OpenBLAS/lib/ src/freecontact
+
+  - name: check we have PSICOV
+    stat: path=/data/psicov
+    register: psicov_exist
+
+  - name : Check out psicov from GIT
+    when: psicov_exist.stat.exists == False
+    git:
+      repo: https://github.com/psipred/psicov.git
+      recursive: yes
+      dest: /data/psicov
+      clone: yes
+      force: yes
+
+  - name: make psicov
+    when: psicov_exist.stat.exists == False
+    shell: "cd /data/psicov/src/; make"
+
+  - name: install psicov
+    when: psicov_exist.stat.exists == False
+    shell: "cp /data/psicov/src/psicov /data/psicov/bin/psicov "
+
+  - name: check we have metapsicov
+    stat: path=/data/metapsicov
+    register: metapsicov_exist
+
+  - name : Check out metapsicov from GIT
+    when: metapsicov_exist.stat.exists == False
+    git:
+      repo: https://github.com/psipred/metapsicov.git
+      dest: /data/metapsicov
+      clone: yes
+      force: yes
+
+  - name: make metapsicov components
+    when: metapsicov_exist.stat.exists == False
+    shell: "cd /data/metapsicov/src; make"
+
+  - name: install metapsicov components
+    when: metapsicov_exist.stat.exists == False
+    shell: "cd /data/metapsicov/src; make install"
+
+  - name: Move hacked jackhhblits
+    # when: maketdb_exist.stat.exists == False
+    copy:
+      src: files/jack_hhblits
+      dest: /data/metapsicov/bin/
+      mode: "uog+rwx"
+
+  - name: check we have hhsuite2
+    stat: path=/data/hhsuite-2.0.16-linux-x86_64
+    register: hh2_exist
+
+  - name: get hhsuite2
+    when: hh2_exist.stat.exists == False
+    get_url:
+      url:  http://wwwuser.gwdg.de/~compbiol/data/hhsuite/releases/all/hhsuite-2.0.16-linux-x86_64.tar.gz
+      dest: /data/
+      timeout: 120
+    register: get_url_result
+
+  - name: unarchive hhsuite2
+    when: hh2_exist.stat.exists == False
+    unarchive:
+      src: /data/hhsuite-2.0.16-linux-x86_64.tar.gz
+      dest: /data/
+      remote_src: yes
+
+  - name: cp cs translate
+    shell: "cp /data/hhsuite-2.0.16-linux-x86_64/lib/hh/bin/cstranslate /data/hhsuite-2.0.16-linux-x86_64/bin/"
+
+  - name: check we have unirefmain
+    stat: path=/data/uniref/unirefmain.fasta
+    register: unirefmain_exist
+
+  - name : Create uniref
+    when: unirefmain_exist.stat.exists == False
+    file:
+      state: directory
+      path: /data/uniref/
+      mode: ug+rwx
+
+  - name: get unirefmain
+    when: unirefmain_exist.stat.exists == False
+    get_url:
+      url: ftp://ftp.uniprot.org/pub/databases/uniprot/uniref/uniref90/uniref90.fasta.gz
+      dest: /data/uniref
+      timeout: 120
+    register: get_url_result
+
+  - name: unzip unirefmain
+    when: unirefmain_exist.stat.exists == False
+    shell: "cd /data/uniref; mv uniref90.fasta.gz unirefmain.fasta.gz; gunzip unirefmain.fasta.gz"
+
+  - name: run ssi build
+    when: unirefmain_exist.stat.exists == False
+    shell: "cd /data/uniref; /data/hmmer-3.1b2-linux-intel-x86_64/binaries/esl-sfetch --index unirefmain"

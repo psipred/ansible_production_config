@@ -1,0 +1,22 @@
+  - name: Check hspred is present
+    stat: path=/data/hspred
+    register: hspred_exist
+
+  - name : Check out hspred from GIT
+    when: hspred_exist.stat.exists == False
+    git:
+      repo: https://github.com/psipred/hspred.git
+      dest: /data/hspred
+      clone: yes
+      force: yes
+
+  - name: install perl expect
+    shell: "cpan install Expect"
+
+  # - name: make metsite components
+  #   when: metsite_exist.stat.exists == False
+  #   shell: "cd /data/metsite/src/; make"
+  #
+  # - name: install metsite
+  #   when: metsite_exist.stat.exists == False
+  #   shell: "cd /data/metsite/src; make install"

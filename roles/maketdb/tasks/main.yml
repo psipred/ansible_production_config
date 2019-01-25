@@ -1,0 +1,78 @@
+  - name: Check maketdb is present
+    stat: path=/data/maketdb
+    register: maketdb_exist
+
+  - name : Check out make tdb from GIT
+    when: maketdb_exist.stat.exists == False
+    git:
+      repo: https://github.com/psipred/maketdb.git
+      dest: /data/maketdb
+      clone: yes
+      force: yes
+
+  - name: make maketdb components
+    when: maketdb_exist.stat.exists == False
+    shell: "cd /data/maketdb/src/; make"
+
+  - name: install maketdb
+    when: maketdb_exist.stat.exists == False
+    shell: "cd /data/maketdb/src; make install"
+
+  - name: Move make_tdb.pl script over
+    # when: maketdb_exist.stat.exists == False
+    copy:
+      src: secrets/make_tdb.pl
+      dest: /data/maketdb/bin/
+      mode: "uog+x"
+
+  - name: Check tcoffee is present
+    stat: path=/data/T-COFFEE_distribution_Version*
+    register: tcoffee_exist
+
+  # - name: Download tcoffee
+  #   when: tcoffee_exist.stat.exists == False
+  #   shell: "chdir=/data/ wget --timeout 120 http://www.tcoffee.org/Packages/Beta/Version_11.00.05372cb/T-COFFEE_distribution_Version_11.00.05372cb.tar.gz"
+  #   register: get_url_result
+  #   # until: get_url_result.stdout.find("Unable to establish SSL connection") == -1
+    # retries: 2
+    # delay: 10
+    # when: pip_install.stdout.find("from /usr/lib/python3.4/site-packages (python 3.4)") == -1
+
+  - name: Download tcoffee
+    when: tcoffee_exist.stat.exists == False
+    get_url:
+      #url: http://www.tcoffee.org/Packages/Beta/Version_11.00.05372cb/T-COFFEE_distribution_Version_11.00.05372cb.tar.gz
+      url: http://www.tcoffee.org/Packages/Stable/Version_11.00.8cbe486/T-COFFEE_distribution_Version_11.00.8cbe486.tar.gz
+      dest: /data/
+      timeout: 120
+    register: get_url_result
+
+  - name: untar tcoffee
+    when: tcoffee_exist.stat.exists == False
+    unarchive:
+      src: /data/T-COFFEE_distribution_Version_11.00.8cbe486.tar.gz
+      dest: /data
+      remote_src: yes
+
+  - name: install tcoffee
+    when: tcoffee_exist.stat.exists == False
+    shell: "cd /data/T-COFFEE_distribution_Version_11.00.8cbe486/; ./install tcoffee"
+
+  # - name: check cath tdb present
+  #   stat: path=/data/data/cath_data/domlib
+  #   register: cathlib_exist
+  #
+  # - name: cath lib
+  #   when: cathlib_exist.stat.exists == False
+  #   get_url:
+  #     url: http://bioinfadmin.cs.ucl.ac.uk/downloads/pGenTHREADER/foldlibs/cath_domain_tdb_4_1.tar.gz
+  #     dest: /data/data/cath_data/
+  #     timeout: 120
+  #   register: get_url_result
+  #
+  # - name: untar cathlib
+  #   when: cahtlib_exist.stat.exists == False
+  #   unarchive:
+  #     src: /data/data/cath_data/cath_domain_tdb_4_1.tar.gz
+  #     dest: /data
+  #     remote_src: yes
