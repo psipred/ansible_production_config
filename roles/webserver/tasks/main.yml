@@ -34,6 +34,7 @@
   - name: Install pip
     shell: "chdir={{ webserver_home }} /bin/python3.4 get-pip.py"
     when: pip_install.stdout.find("from /usr/lib/python3.4/site-packages (python 3.4)") == -1
+    become_user: root
 
   - name: Upgrade virtualenv
     shell: pip install --upgrade virtualenv
@@ -127,6 +128,8 @@
     become_method: sudo
 
   - name: Make the apachedir
+    become_user: root
+    become_method: sudo
     file:
       path: "/opt/webserver_httpd/"
       state: directory

@@ -117,7 +117,7 @@
   become_user: dbuchan
   become_method: sudo
   roles:
-    - djangomachine
+    # - djangomachine
     - webserver
   vars_files:
     - secrets/production_secrets.yaml
