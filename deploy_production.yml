@@ -35,17 +35,17 @@
 #     - dbserver
 #   vars_files:
 #     - secrets/production_secrets.yaml
-#
-# - name: Apply Analytics Automated head node configuration
-#   hosts: aa_head
-#   become: true
-#   become_user: dbuchan
-#   become_method: sudo
-#   roles:
-#     - djangomachine
-#     - aahead
-#   vars_files:
-#     - secrets/production_secrets.yaml
+# #
+- name: Apply Analytics Automated head node configuration
+  hosts: aa_head
+  become: true
+  become_user: dbuchan
+  become_method: sudo
+  roles:
+    # - djangomachine
+    - aahead
+  vars_files:
+    - secrets/production_secrets.yaml
 
 
 ## SUPERSEDED BY celery_worker_node BELOW:
@@ -71,7 +71,7 @@
 #     - blastmachine
 #   vars_files:
 #     - secrets/production_secrets.yaml
-
+#
 # - name: Create blast_cache machine
 #   hosts: blast_cache
 #   become: true
