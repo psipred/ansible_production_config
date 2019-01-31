@@ -278,4 +278,4 @@
 
   - name: run ssi build
     when: unirefmain_exist.stat.exists == False
-    shell: "cd /data/uniref; /data/hmmer-3.1b2-linux-intel-x86_64/binaries/esl-sfetch --index unirefmain"
+    shell: "cd /data/uniref; /data/hmmer-3.1b2-linux-intel-x86_64/binaries/esl-sfetch --index unirefmain.fasta"
