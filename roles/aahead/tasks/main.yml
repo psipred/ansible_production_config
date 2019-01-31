@@ -111,54 +111,54 @@
       dest: "{{ django_aa_home }}/analytics_automated/analytics_automated_project/celery.py"
       owner: "{{ django_aa_user }}"
 
-
   - name: Make aa logging dir
     become_user: "{{ django_aa_user }}"
     file:
       path: "{{ django_aa_home }}/analytics_automated/logs"
       state: directory
       owner: "{{ django_aa_user }}"
-  #
-  # - name: Make jointly visible submissions dir on the NFS
-  #   file:
-  #     path: "/webdata/submissions"
-  #     state: directory
-  #     owner: "{{ django_aa_user }}"
-  #     group: apache
-  #     mode: "ug+rw"
-  #
-  # - name: Check if we have /webdata/submissions/files
-  #   stat: "path=/webdata/submissions/files"
-  #   become_user: root
-  #   register: files_exists
-  #
-  # - name: move the files/ dir to submissions
-  #   when: files_exists.stat.exists == False
-  #   become_user: "{{ django_aa_user }}"
-  #   command: "mv {{ django_aa_home }}/analytics_automated/submissions/files /webdata/submissions"
+
+  - name: Make jointly visible submissions dir on the NFS
+    become_user: root
+    file:
+      path: "/webdata/production_submissions"
+      state: directory
+      owner: "{{ django_aa_user }}"
+      group: apache
+      mode: "ug+rw"
+
+  - name: Check if we have /webdata/production_submissions/files
+    stat: "path=/webdata/production_submissions/files"
+    become_user: root
+    register: files_exists
+
+  - name: move the files/ dir to submissions
+    when: files_exists.stat.exists == False
+    become_user: "{{ django_aa_user }}"
+    command: "mv {{ django_aa_home }}/analytics_automated/submissions/files /webdata/production_submissions"
 
   - name: Check aa submissions
     stat: "path={{ django_aa_home }}/analytics_automated/submissions"
     become_user: "{{ django_aa_user }}"
     register: submissions_type
 
-  # - name: remove the submissions dir
-  #   when: submissions_type.stat.isdir is defined and submissions_type.stat.isdir and submissions_type.stat.islink is not defined
-  #   become_user: "{{ django_aa_user }}"
-  #   file:
-  #     path: "{{ django_aa_home }}analytics_automated/submissions"
-  #     state: absent
-  #
-  # - name: symlink submissions to the aa dir
-  #   become_user: "{{ django_aa_user }}"
-  #   when: submissions_type.stat.isdir is defined and submissions_type.stat.isdir and submissions_type.stat.islink is not defined
-  #   file:
-  #     src: /webdata/submissions
-  #     dest: "{{ django_aa_home }}/analytics_automated/submissions"
-  #     state: link
-  #     owner: "{{ django_aa_user }}"
-  #     group: apache
-  #     mode: "ug+rw"
+  - name: remove the submissions dir
+    when: submissions_type.stat.isdir is defined and submissions_type.stat.isdir and submissions_type.stat.islink is not defined
+    become_user: "{{ django_aa_user }}"
+    file:
+      path: "{{ django_aa_home }}analytics_automated/submissions"
+      state: absent
+
+  - name: symlink submissions to the aa dir
+    become_user: "{{ django_aa_user }}"
+    when: submissions_type.stat.isdir is defined and submissions_type.stat.isdir and submissions_type.stat.islink is not defined
+    file:
+      src: /webdata/production_submissions
+      dest: "{{ django_aa_home }}/analytics_automated/submissions"
+      state: link
+      owner: "{{ django_aa_user }}"
+      group: apache
+      mode: "ug+rw"
 
   - name: Run Django migrations
     become_user: "{{ django_aa_user }}"
