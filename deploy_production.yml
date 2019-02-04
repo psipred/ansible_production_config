@@ -40,7 +40,7 @@
 #   hosts: aa_head
 #   become: true
 #   become_user: dbuchan
-#   become_method: sudo
+#   become_method: sud
 #   roles:
 #     # - djangomachine
 #     - aahead
