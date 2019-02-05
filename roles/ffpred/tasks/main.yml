@@ -20,7 +20,15 @@
       pkg: glibc.i686
       state: latest
     become_user: root
-    become_method:
+    become_method:  sudo
+
+  - name: Install tcsh
+    yum:
+      pkg: tcsh
+      state: latest
+    become_user: root
+    become_method:  sudo
+
 
   - name: Check if signalP is installed
     stat: path=/data/signalp-4.1
@@ -303,17 +311,17 @@
       timeout: 120
     register: get_url_result
 
-  - name: Make SVMs dir
-    file:
-      path: /data/SVMs
-      state: directory
-    when: ffpred_exist.stat.exists == False
+  # - name: Make SVMs dir
+  #   file:
+  #     path: /data/SVMs
+  #     state: directory
+  #   when: ffpred_exist.stat.exists == False
 
   - name: untar ffpred SVMs
     #when: ffpred_exist.stat.exists == False
     unarchive:
       src: /data/SVMs.tar.gz
-      dest: /data/SVMs
+      dest: /data/
       remote_src: yes
 
   - name: remove SVM tarball

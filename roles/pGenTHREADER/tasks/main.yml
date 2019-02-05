@@ -3,6 +3,13 @@
 # INSTALLING TO /webdata as we are out of room in /data ffs
 #
 #
+  - name: Install ruby
+    yum:
+      pkg: ruby
+      state: latest
+    become_user: root
+    become_method: sudo
+
   - name: Check if pgenthreader is installed
     stat: path=/data/pgenthreader/GenThreader.sh
     register: pgenthreader_exist
