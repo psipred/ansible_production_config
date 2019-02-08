@@ -1129,19 +1129,19 @@ sub ExtractPdbcodeAndChain()
     }
 
     # PDB ID? (8fab, 1a0i)
-    elsif ($name=~/^(\d[a-z0-9]{3})$/) {
+    elsif ($name=~/^(\d[a-z0-9]{3})$/i) {
 	$pdbcode=$1;
 	$chain="[A ]";
     }
 
     # PDB ID? (8fab_A)
-    elsif ($name=~/^(\d[a-z0-9]{3})_(\S)$/) {
+    elsif ($name=~/^(\d[a-z0-9]{3})_(\S)$/i) {
 	$pdbcode=$1;
 	$chain=$2;
     }
 
     # PDB ID? (1u1z_ABC)
-    elsif ($name=~/^(\d[a-z0-9]{3})_(\S\S+)$/) {
+    elsif ($name=~/^(\d[a-z0-9]{3})_(\S\S+)$/i) {
 	$pdbcode=$1;
 	$chain="[$2]";
     }

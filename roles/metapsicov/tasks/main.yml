@@ -50,7 +50,7 @@
 
   - name: Download uniprot20 db
     when: hhuniprot_exist.stat.exists == False
-    shell: "chdir=/data/hhdb/ wget --timeout 120 http://wwwuser.gwdg.de/~compbiol/uniclust/2018_08/uniclust30_2018_08.tar.gz"
+    shell: "chdir=/data/hhdb/ wget --timeout 120 http://wwwuser.gwdg.de/~compbiol/uniclust/2018_08/uniclust30_2018_08_hhsuite.tar.gz"
     register: get_url_result
     # until: get_url_result.stdout.find("Unable to establish SSL connection") == -1
     # retries: 2
@@ -249,6 +249,14 @@
       src: /data/hhsuite-2.0.16-linux-x86_64.tar.gz
       dest: /data/
       remote_src: yes
+
+  - name: Move hacked HHPaths over
+    when: hh2_exist.stat.exists == False
+    copy:
+      src: files/HHPaths.pm
+      dest: /data/hhsuite-2.0.16-linux-x86_64/scripts/
+      mode: "uog+rwx"
+
 
   - name: cp cs translate
     shell: "cp /data/hhsuite-2.0.16-linux-x86_64/lib/hh/bin/cstranslate /data/hhsuite-2.0.16-linux-x86_64/bin/"

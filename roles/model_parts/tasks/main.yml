@@ -1,3 +1,11 @@
+  - name: Install epel
+    yum:
+      pkg: glib2-2.56.1-2.el7.i686
+      state: latest
+    become_user: root
+    become_method: sudo
+
+
   - name: Check simple_modeller exists
     stat: path=/data/simple_modeller
     register: simple_modeller_exist
@@ -30,4 +38,4 @@
   #   shell: "cd /data/pdb; rsync -rlpt -v -z --delete rsync.ebi.ac.uk::pub/databases/msd/pdb_uncompressed/ /data/pdb/"
 
   - name: wget the PDB
-    shell: "cd /webdata/data/pdb; wget -r -nd -N --tries=10 ftp://ftp.ebi.ac.uk/pub/databases/msd/pdb_uncompressed/"
+    shell: "cd /data/pdb; rsync -rlpt -v -z --delete --port=33444 --copy-links rsync.rcsb.org::ftp_data/structures/divided/pdb/ ./"
