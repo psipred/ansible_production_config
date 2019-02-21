@@ -1,3 +1,11 @@
+  - name: Install libg2c
+    yum:
+      pkg: compat-libf2c-34.x86_64
+      state: latest
+    become_user: root
+    become_method: sudo
+
+
   - name: Check hspred is present
     stat: path=/data/hspred
     register: hspred_exist

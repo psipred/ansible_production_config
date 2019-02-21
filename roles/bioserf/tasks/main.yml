@@ -256,3 +256,6 @@
   - name: Run formatdb
     shell: cd /data/pdbaa; /data/ncbi-blast-2.7.1+/bin/makeblastdb -in pdbaa -dbtype prot
     when: pdbaa_exist.stat.exists == False
+
+  - name: set owner to django_worker
+    shell: chown django_worker /data/pdbaa; chown django_worker /data/pdbaa/*

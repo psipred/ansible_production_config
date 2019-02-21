@@ -66,9 +66,9 @@
 #   become_user: root
 #   become_method: sudo
 #   roles:
-#     #- djangomachine
+#     - djangomachine
 #     - blastworkers
-#     #- blastmachine
+#     - blastmachine
 #   vars_files:
 #     - secrets/production_secrets.yaml
 #

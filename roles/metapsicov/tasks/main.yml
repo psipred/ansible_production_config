@@ -45,7 +45,7 @@
     when: hhuniprot_exist.stat.exists == False
     file:
       state: directory
-      path: /data/hhdb/uniprot/
+      path: /data/hhdb/uniclust30_2018_08/
       mode: ug+rwx
 
   - name: Download uniprot20 db
@@ -60,12 +60,15 @@
   - name: unpack HHSeach uniprot20 db
     when: hhuniprot_exist.stat.exists == False
     unarchive:
-      src: /data/hhdb/uniclust30_2018_08.tar.gz
-      dest: /data/hhdb/uniprot
+      src: /data/hhdb/uniclust30_2018_08_hhsuite.tar.gz
+      dest: /data/hhdb/uniclust30_2018_08
       remote_src: yes
 
   - name: make dbs rw by all
     shell: "chdir=/data/hhdb/ chmod -R uog+rw *"
+
+  - name: set owner to django_worker
+    shell: chown -R django_worker /data/hhdb/*
 
   - name: Check if there is a dir for the hmmr3
     stat: path=/data/hmmer-3.1b2-linux-intel-x86_64/
@@ -180,7 +183,7 @@
 
   - name: make freecontact
     when: freecontact_exist.stat.exists == False
-    shell: "cd /data/freecontact-1.0.21/; ./make"
+    shell: "cd /data/freecontact-1.0.21/; make"
     #run with env LD_LIBRARY_PATH=/data/OpenBLAS/lib/ src/freecontact
 
   - name: check we have PSICOV

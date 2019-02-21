@@ -96,6 +96,9 @@
     shell: cd /data/uniref; /usr/local/bin/makeblastdb -in uniref90.fasta -dbtype prot
     when: uniref_exist.stat.exists == False
 
+  - name: set owner to django_worker
+    shell: chown -R blast_worker /data/uniref/
+
   - name: Check if we have pdbaa
     stat:
       path: /data/pdbaa/pdbaa.phr
@@ -121,6 +124,9 @@
   - name: unzip pdbaa
     shell: cd /data/pdbaa; /bin/gunzip pdbaa.gz
     when: pdbaa_exist.stat.exists == False
+
+  - name: set owner to django_worker
+    shell: chown -R blast_worker /data/pdbaa/
 
   - name: Run formatdb
     shell: cd /data/pdbaa; /usr/local/bin/makeblastdb -in pdbaa -dbtype prot
@@ -185,3 +191,6 @@
   - name: change hhdb permissions
     shell: cd /data/hhdb/uniclust30_2018_08; chmod uog+rw *
     when: hhsuite_exist.stat.exists == False
+
+  - name: set owner to django_worker
+    shell: chown -R blast_worker /data/hhdb/

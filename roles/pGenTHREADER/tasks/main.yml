@@ -83,6 +83,9 @@
       dest: /data/pgenthreader/
       remote_src: yes
 
+  - name: set owner to django_worker
+    shell: chown -R django_worker /pgenthreader/*
+
 # COPY PSICHAINS LIST TO CATH_DOM_LIST
 
   - name: psichain list to data

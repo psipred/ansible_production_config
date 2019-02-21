@@ -62,6 +62,17 @@
       clone: yes
       force: yes
 
+  - name : Check Out MEMSATSVM-PORE from GIT
+    when: memsat_exist.stat.exists == False
+    git:
+      repo: https://github.com/psipred/MemSatSVMPORE.git
+      dest: /data/memsat-svm-pore
+      clone: yes
+      force: yes
+
+  - name: make binaries
+    shell: "cd /data/memsat-svm-pore; make"
+
   # - name: Download memsat model data
   #   when: memsat_exist.stat.exists == False
   #   shell: "chdir=/data/memsat-svm wget --timeout 120 http://bioinfadmin.cs.ucl.ac.uk/downloads/memsat-svm/models.tar.gz"

@@ -39,3 +39,9 @@
 
   - name: wget the PDB
     shell: "cd /data/pdb; rsync -rlpt -v -z --delete --port=33444 --copy-links rsync.rcsb.org::ftp_data/structures/divided/pdb/ ./"
+
+  - name: set owner to django_worker
+    shell: chown -R django_worker /data/pdb/
+
+  - name: set owner to django_worker
+    shell: cd /data/pdb; find . -maxdepth 1 -not -name "." -print0 | xargs --null chown -R django_worker
