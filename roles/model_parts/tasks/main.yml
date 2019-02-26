@@ -38,7 +38,7 @@
   #   shell: "cd /data/pdb; rsync -rlpt -v -z --delete rsync.ebi.ac.uk::pub/databases/msd/pdb_uncompressed/ /data/pdb/"
 
   - name: wget the PDB
-    shell: "cd /data/pdb; rsync -rlpt -v -z --delete --port=33444 --copy-links rsync.rcsb.org::ftp_data/structures/divided/pdb/ ./"
+    shell: "cd /data/pdb; rsync -rlpt -v -z --delete --copy-links --port=33444 rsync.rcsb.org::ftp_data/structures/all/pdb/ ./"
 
   - name: set owner to django_worker
     shell: chown -R django_worker /data/pdb/
