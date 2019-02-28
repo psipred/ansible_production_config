@@ -9,7 +9,7 @@ Restart=no
 StandardOutput=tty
 User=blast_worker
 WorkingDirectory=/home/blast_worker/analytics_automated/
-ExecStart=/bin/sh -c "source /home/blast_worker/aa_env/bin/activate; celery --app=analytics_automated_project.celery:app worker --loglevel=INFO -Q blast,low_blast,high_blast --concurrency=24 --detach --pidfile=celery.pid"
+ExecStart=/bin/sh -c "source /home/blast_worker/aa_env/bin/activate; celery --app=analytics_automated_project.celery:app worker --loglevel=INFO -Q sequpdate,blast,low_blast,high_blast --concurrency=24 --detach --pidfile=celery.pid"
 
 [Install]
 WantedBy=multi-user.target

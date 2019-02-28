@@ -198,7 +198,7 @@
       chdir: "{{ django_aa_home }}analytics_automated"
     become_user: "{{ django_aa_user }}"
     register: aa_started
-    when: aa_running.stdout.find("httpd (mod_wsgi-express)") == -1
+    #when: aa_running.stdout.find("httpd (mod_wsgi-express)") == -1
 
   - name : add AA admin account
     shell: "source {{ django_aa_home }}aa_env/bin/activate; echo \"from django.contrib.auth.models import User; User.objects.filter(username='admin').delete(); User.objects.create_superuser('admin', 'a@b.com', '{{ aa_admin_pass }}')\" | python3 manage.py shell --settings=analytics_automated_project.settings.production"
