@@ -1,0 +1,6 @@
+- name: add db cleaning script to cron
+  become_user: "{{ django_aa_user }}"
+  cron:
+    name: "Clean db of old files"
+    hour: "1"
+    job: "/usr/bin/sh {{ django_aa_home }}analytics_automated/example_scripts/delete_entries.sh"

@@ -1,0 +1,12 @@
+- name : Check Out update scripts from GIT
+  git:
+    repo: https://github.com/psipred/server_update.git
+    dest: "/root/server_update"
+    clone: yes
+    force: yes
+
+- name: add tmp cleaning script to cron
+  cron:
+    name: "Clean TMP of any rogue old psipred files"
+    hour: "1"
+    job: "/usr/bin/sh /root/server_update/tidy_tmp.sh"

@@ -109,42 +109,42 @@
 #   vars_files:
 #     - secrets/production_secrets.yaml
 
-- name: Update datanodes
-  hosts: update_data
-  become: true
-  become_user: root
-  become_method: sudo
-  roles:
-    - dataupdates
-  vars_files:
-    - secrets/staging_secrets.yaml
-
-- name: Update blastnodes
-  hosts: update_blast
-  become: true
-  become_user: root
-  become_method: sudo
-  roles:
-    - blastupdates
-  vars_files:
-    - secrets/staging_secrets.yaml
-
-# - name: build tdb stuff
-#   hosts: build_tdb
+# - name: Updates for datanodes
+#   hosts: update_data
 #   become: true
 #   become_user: root
 #   become_method: sudo
 #   roles:
-#     - updatetdb
+#     - dataupdates
 #   vars_files:
 #     - secrets/staging_secrets.yaml
 #
-# - name: Clear db
-#   hosts: clear_tmp
+# - name: Updates for blastnodes
+#   hosts: update_blast
 #   become: true
 #   become_user: root
 #   become_method: sudo
 #   roles:
-#     - cleardb
+#     - blastupdates
 #   vars_files:
 #     - secrets/staging_secrets.yaml
+
+- name: Tidy processing tmp
+  hosts: clear_tmp
+  become: true
+  become_user: root
+  become_method: sudo
+  roles:
+    - cleartmp
+  vars_files:
+    - secrets/production_secrets.yaml
+
+- name: Tidy old db entries
+  hosts: clear_db
+  become: true
+  become_user: root
+  become_method: sudo
+  roles:
+    - cleardb
+  vars_files:
+    - secrets/production_secrets.yaml
