@@ -2,7 +2,7 @@
   become_user: "{{ django_aa_user }}"
   git:
     repo: https://github.com/psipred/server_update.git
-    dest: "{{ django_aa_user }}/server_update"
+    dest: "{{ django_aa_home }}server_update"
     clone: yes
     force: yes
 
@@ -20,4 +20,4 @@
     name: "Clean production_submission files"
     minute: "0"
     hour: "1"
-    job: "/usr/bin/sh {{ django_aa_home }}analytics_automated/example_scripts/tidy_production_submissions.sh"
+    job: "/usr/bin/sh {{ django_aa_home }}server_update/tidy_production_submissions.sh"
