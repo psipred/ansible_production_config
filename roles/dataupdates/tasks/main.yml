@@ -11,9 +11,9 @@
   become_user: "{{ django_worker_user }}"
   #when: celery_running.stdout.find("celery worker") == 1
 
-- name: start the celery beat service
-  shell: "chdir={{ django_worker_home }}/analytics_automated/ source {{ django_worker_home }}aa_env/bin/activate; celery --app=analytics_automated_project.celery:app beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler --detach"
-  become_user: "{{ django_worker_user }}"
+# - name: start the celery beat service
+#   shell: "chdir={{ django_worker_home }}/analytics_automated/ source {{ django_worker_home }}aa_env/bin/activate; celery --app=analytics_automated_project.celery:app beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler --detach"
+#   become_user: "{{ django_worker_user }}"
 
 - name: Start the aa_workers
   shell: "chdir={{ django_worker_home }}/analytics_automated/ source {{ django_worker_home }}aa_env/bin/activate; celery --app=analytics_automated_project.celery:app worker --loglevel=INFO -Q pdbtdbupdate,low_localhost,localhost,high_localhost,celery,low_R,R,high_R,low_Python,Python,high_Python --detach --pidfile=celery.pid"
@@ -38,3 +38,39 @@
 
 - name: make tmp dir
   shell: mkdir /data/update_tdb; chown blast_worker /data/update_tdb
+
+- name: add PDB update to cron
+  become_user: "{{ django_worker_user }}"
+  cron:
+    name: "Update PDB"
+    minute: "0"
+    hour: "2"
+    day: "1"
+    job: "/usr/bin/sh {{ django_worker_home }}/server_update/update_pdb.sh > /dev/null 2>&1"
+
+- name: update seqdbs
+  become_user: "{{ django_worker_user }}"
+  cron:
+    name: "Update sequence dbs"
+    minute: "0"
+    hour: "2"
+    day: "3"
+    job: "/usr/bin/sh {{ django_worker_home }}/server_update/update_data_sequence_databases.sh > /dev/null 2>&1"
+
+- name: add TDB
+  become_user: "{{ django_worker_user }}"
+  cron:
+    name: "Update sequence TDB"
+    minute: "0"
+    hour: "2"
+    day: "5"
+    job: "/usr/bin/sh {{ django_worker_home }}/server_update/update_tdb.sh > /dev/null 2>&1"
+
+- name: add TDB
+  become_user: "{{ django_worker_user }}"
+  cron:
+    name: "Update sequence TDB 2nd"
+    minute: "0"
+    hour: "2"
+    day: "29"
+    job: "/usr/bin/sh {{ django_worker_home }}/server_update/update_tdb.sh > /dev/null 2>&1"

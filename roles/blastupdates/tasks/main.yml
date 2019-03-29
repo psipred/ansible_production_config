@@ -51,3 +51,12 @@
 
   - name: make tmp dir
     shell: mkdir /data/update_tdb; chown blast_worker /data/update_tdb
+
+  - name: add tmp cleaning script to cron
+    become_user: "{{ blast_worker_user }}"
+    cron:
+      name: "Clean update seqdb"
+      minute: "0"
+      hour: "2"
+      day: "1"
+      job: "/usr/bin/sh {{ blast_worker_home }}/server_update/update_blast_sequence_databases.sh > /dev/null 2>&1"

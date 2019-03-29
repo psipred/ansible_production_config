@@ -65,7 +65,7 @@
 #   become_user: root
 #   become_method: sudo
 #   roles:
-#     - djangomachine
+#     # - djangomachine
 #     - blastcache
 #   vars_files:
 #     - secrets/production_secrets.yaml
@@ -109,15 +109,15 @@
 #   vars_files:
 #     - secrets/production_secrets.yaml
 
-# - name: Updates for datanodes
-#   hosts: update_data
-#   become: true
-#   become_user: root
-#   become_method: sudo
-#   roles:
-#     - dataupdates
-#   vars_files:
-#     - secrets/staging_secrets.yaml
+- name: Updates for datanodes
+  hosts: update_data
+  become: true
+  become_user: root
+  become_method: sudo
+  roles:
+    - dataupdates
+  vars_files:
+    - secrets/staging_secrets.yaml
 #
 # - name: Updates for blastnodes
 #   hosts: update_blast
@@ -128,7 +128,7 @@
 #     - blastupdates
 #   vars_files:
 #     - secrets/staging_secrets.yaml
-
+#
 # - name: Tidy processing tmp
 #   hosts: clear_tmp
 #   become: true
@@ -138,13 +138,13 @@
 #     - cleartmp
 #   vars_files:
 #     - secrets/production_secrets.yaml
-#
-- name: Tidy old db entries
-  hosts: clear_db
-  become: true
-  become_user: root
-  become_method: sudo
-  roles:
-    - cleardb
-  vars_files:
-    - secrets/production_secrets.yaml
+# #
+# - name: Tidy old db entries
+#   hosts: clear_db
+#   become: true
+#   become_user: root
+#   become_method: sudo
+#   roles:
+#     - cleardb
+#   vars_files:
+#     - secrets/production_secrets.yaml

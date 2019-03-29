@@ -12,12 +12,11 @@
     name: "Clean db of old files"
     minute: "0"
     hour: "1"
-    job: "/usr/bin/sh {{ django_aa_home }}analytics_automated/example_scripts/delete_entries.sh"
+    job: "/usr/bin/sh {{ django_aa_home }}analytics_automated/example_scripts/delete_entries.sh > /dev/null 2>&1"
 
 - name: add rogue filr cleaning script to cron
-  become_user: "{{ django_aa_user }}"
   cron:
     name: "Clean production_submission files"
     minute: "0"
     hour: "1"
-    job: "/usr/bin/sh {{ django_aa_home }}server_update/tidy_production_submissions.sh"
+    job: "/usr/bin/sh {{ django_aa_home }}server_update/tidy_production_submissions.sh > /dev/null 2>&1"

@@ -10,4 +10,4 @@
     name: "Clean TMP of any rogue old psipred files"
     minute: "0"
     hour: "1"
-    job: "/usr/bin/sh /root/server_update/tidy_tmp.sh"
+    job: "/usr/bin/sh /root/server_update/tidy_tmp.sh > /dev/null 2>&1"
