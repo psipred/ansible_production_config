@@ -39,7 +39,7 @@
 
   - name: Install Python 3
     yum:
-      pkg: python34
+      pkg: python36
       state: latest
     become_user: root
     become_method: sudo
@@ -51,9 +51,9 @@
     become_user: root
     become_method: sudo
 
-  - name: Install Python34-devel
+  - name: Install Python36-devel
     yum:
-      pkg: python34-devel
+      pkg: python36-devel
       state: latest
     become_user: root
     become_method: sudo

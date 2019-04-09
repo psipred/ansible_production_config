@@ -6,15 +6,15 @@
 #
 
 # NOT NEEDED IN PRODUCTION
-# - name: Set up common bits needed for the rest of the install
-#   hosts: everyone
-#   become: true
-#   become_user: dbuchan
-#   become_method: sudo
-#   roles:
-#     - common
-#   vars_files:
-#     - secrets/production_secrets.yaml
+- name: Set up common bits needed for the rest of the install
+  hosts: everyone
+  become: true
+  become_user: dbuchan
+  become_method: sudo
+  roles:
+    - common
+  vars_files:
+    - secrets/production_secrets.yaml
 
 # - name: Apply the redis configuration
 #   hosts: redis
@@ -109,16 +109,16 @@
 #   vars_files:
 #     - secrets/production_secrets.yaml
 
-- name: Updates for datanodes
-  hosts: update_data
-  become: true
-  become_user: root
-  become_method: sudo
-  roles:
-    - dataupdates
-  vars_files:
-    - secrets/staging_secrets.yaml
-#
+# - name: Updates for datanodes
+#   hosts: update_data
+#   become: true
+#   become_user: root
+#   become_method: sudo
+#   roles:
+#     - dataupdates
+#   vars_files:
+#     - secrets/staging_secrets.yaml
+# #
 # - name: Updates for blastnodes
 #   hosts: update_blast
 #   become: true

@@ -21,7 +21,7 @@
   #   until: get_url_result.stdout.find("Unable to establish SSL connection") == -1
   #   retries: 2
   #   delay: 10
-  #   when: pip_install.stdout.find("from /usr/lib/python3.4/site-packages (python 3.4)") == -1
+  #   when: pip_install.stdout.find("from /usr/lib/python3.6/site-packages (python 3.6)") == -1
 
   - name: get get-pip.py
     become_user: "{{ webserver_user }}"
@@ -32,8 +32,8 @@
     register: get_url_result
 
   - name: Install pip
-    shell: "chdir={{ webserver_home }} /bin/python3.4 get-pip.py"
-    when: pip_install.stdout.find("from /usr/lib/python3.4/site-packages (python 3.4)") == -1
+    shell: "chdir={{ webserver_home }} /bin/python3.6 get-pip.py"
+    when: pip_install.stdout.find("from /usr/lib/python3.6/site-packages (python 3.6)") == -1
     become_user: root
 
   - name: Upgrade virtualenv
@@ -47,7 +47,7 @@
 
   - name: Create the webserver virtualenv
     become_user: "{{ webserver_user }}"
-    command: virtualenv webserver_env -p /bin/python3.4
+    command: virtualenv webserver_env -p /bin/python3.6
     when: webserver_env_exist.stat.exists == False
     args:
         chdir: "{{ webserver_home }}"
