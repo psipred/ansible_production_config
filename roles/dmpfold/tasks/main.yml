@@ -90,7 +90,7 @@
     become_method: sudo
     copy:
       src: files/rtf.inc
-      dest: /opt/cns_solve_1.3/source/rtf.inc
+      dest: /data/cns_solve_1.3/source/rtf.inc
       mode: "uog+x"
 
   - name: install CNS
@@ -133,7 +133,7 @@
     become_method: sudo
     copy:
       src: files/aln2maps.csh
-      dest: /opt/DMPfold/aln2maps.csh
+      dest: /data/DMPfold/aln2maps.csh
       mode: "uog+x"
 
   - name: copy over runpsipredandsolvwithdb
@@ -141,7 +141,7 @@
     become_method: sudo
     copy:
       src: files/runpsipredandsolvwithdb
-      dest: /opt/DMPfold/bin/runpsipredandsolvwithdb
+      dest: /data/DMPfold/bin/runpsipredandsolvwithdb
       mode: "uog+x"
 
   - name: copy over rundmpfold.sh
@@ -149,5 +149,5 @@
     become_method: sudo
     copy:
       src: files/run_dmpfold.sh
-      dest: /opt/DMPfold/run_dmpfold.sh
+      dest: /data/DMPfold/run_dmpfold.sh
       mode: "uog+x"
