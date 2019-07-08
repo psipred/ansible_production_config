@@ -6,15 +6,15 @@
 #
 
 # NOT NEEDED IN PRODUCTION
-- name: Set up common bits needed for the rest of the install
-  hosts: everyone
-  become: true
-  become_user: dbuchan
-  become_method: sudo
-  roles:
-    - common
-  vars_files:
-    - secrets/production_secrets.yaml
+# - name: Set up common bits needed for the rest of the install
+#   hosts: everyone
+#   become: true
+#   become_user: dbuchan
+#   become_method: sudo
+#   roles:
+#     - common
+#   vars_files:
+#     - secrets/production_secrets.yaml
 
 # - name: Apply the redis configuration
 #   hosts: redis
@@ -73,30 +73,32 @@
 # mempack won't compile in OSX
 # domThreader seg faults in OSX
 #
-# - name: Create Celery worker node
-#   hosts: celery_worker_node
-#   become: true
-#   become_user: root
-#   become_method: sudo
-#   roles:
-#     # - djangomachine
-#     - aaworker
-#     # - psipred
-#     # - disopred
-#     # - memsatsvm
-#     # - pGenTHREADER
-#     # - model_parts # get the bits for the frontend simple modelling
-#     # - dompred
-#     # - mempack
-#     # - bioserf
-#     # - ffpred
-#     #- metapsicov
-#     # - metsite
-#     # - hspred
-#     # - memembed
-#     # - maketdb
-#   vars_files:
-#     - secrets/production_secrets.yaml
+- name: Create Celery worker node
+  hosts: celery_worker_node
+  become: true
+  become_user: root
+  become_method: sudo
+  roles:
+    # - djangomachine
+    # - aaworker
+    # - psipred
+    # - disopred
+    # - memsatsvm
+    # - pGenTHREADER
+    # - model_parts # get the bits for the frontend simple modelling
+    # - dompred
+    # - mempack
+    # - bioserf
+    # - ffpred
+    #- metapsicov
+    # - metsite
+    # - hspred
+    # - memembed
+    # - maketdb
+     - dmpfold
+     - dmp
+  vars_files:
+    - secrets/production_secrets.yaml
 #
 # - name: Install webserver
 #   hosts: webserver
