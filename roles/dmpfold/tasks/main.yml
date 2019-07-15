@@ -29,17 +29,20 @@
     become_user: root
     become_method: sudo
 
-  - name: clone DMPfold
-    git:
-      repo: https://github.com/psipred/DMPfold.git
-      dest: /data/DMPfold
-      clone: yes
-      force: yes
-
   - name: clone CD-HIT
     git:
       repo: https://github.com/weizhongli/cdhit.git
       dest: /data/cdhit
+      clone: yes
+      force: yes
+
+  - name: make CD-Hit
+    shell: "chdir=/data/cdhit/ make"
+
+  - name: clone DMPfold
+    git:
+      repo: https://github.com/psipred/DMPfold.git
+      dest: /data/DMPfold
       clone: yes
       force: yes
 
