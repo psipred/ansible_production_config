@@ -36,6 +36,13 @@
       clone: yes
       force: yes
 
+  - name: clone CD-HIT
+    git:
+      repo: https://github.com/weizhongli/cdhit.git
+      dest: /data/cdhit
+      clone: yes
+      force: yes
+
   - name: copy over CNS
     become_user: root
     become_method: sudo
@@ -55,9 +62,9 @@
       dest: /data/cns_solve_1.3/modules/nmr/readdata
       mode: "uog+x"
 
-  - name: Install flex-devel
+  - name: Install flex-devel patch
     yum:
-      pkg: flex-devel
+      pkg: flex-devel, patch
       state: latest
     become_user: root
 
@@ -93,6 +100,14 @@
       dest: /data/cns_solve_1.3/source/rtf.inc
       mode: "uog+x"
 
+  - name: copy over cns_solve_env
+    become_user: root
+    become_method: sudo
+    copy:
+      src: files/cns_solve_env
+      dest: /data/cns_solve_1.3/
+      mode: "uog+x"
+
   - name: install CNS
     shell: "chdir=/data/cns_solve_1.3 make install"
     become_user: root
@@ -105,9 +120,9 @@
       dest: /data/cns_solve_1.3/intel-x86_64bit-linux/source/Makefile
       mode: "uog+x"
 
-  - name: install CNS
-    shell: "chdir=/data/cns_solve_1.3/intel-x86_64bit-linux/source make install"
-    become_user: root
+  # - name: install CNS
+  #   shell: "chdir=/data/cns_solve_1.3/intel-x86_64bit-linux/source make install"
+  #   become_user: root
 
   - name: patch files
     shell: "chdir=/data/DMPfold/cnsfiles sh installscripts.sh"

@@ -14,15 +14,15 @@
 !    all the data input modules.
 !
 ! Requirements:
-!    See the top level script file for the 
-!    defined parameter(s). The $nmr symbols (&output) are 
+!    See the top level script file for the
+!    defined parameter(s). The $nmr symbols (&output) are
 !    for later use in the printaccept and calcave
 !    modules
-! 
+!
 !
 
 module { readdata }
-( 
+(
      &nmr=nmr;                   {INPUT: all the &nmr. defined paramters}
      &flag=flag;                 {INPUT: flags for cv }
      &output=output;             {OUTPUT: $nmr symbols for output}
@@ -58,7 +58,7 @@ end if
    noe
       reset
       nrestraints = 30000
-   end		     
+   end
 
    {- read in restraint NOE files -}
 
@@ -100,7 +100,7 @@ end if
       soexponent * 1
       asymptote  * 1.0
       rswitch * 0.5
-   end 
+   end
 
 {- 3-bond j-coupling -}
 
@@ -142,7 +142,7 @@ end if
    	 end if
    	 evaluate ($count = $count + 1)
       end loop nloop
-      
+
       if (&flag.cv.flag=true) then
     	 if (&flag.cv.coup=true) then
     	    couplings
@@ -271,7 +271,7 @@ end if
 {- diffusion anisotropy -}
 
    {- determine number of diffusion anisotropy files -}
-   
+
    evaluate ($count=1)
    evaluate (&output.dani.class.num=0.)
    evaluate ($dani_flag=false)
@@ -303,18 +303,18 @@ end if
     	    		  	       dcoef1=&nmr.dani.coef.1.$count;
     	    		  	       dcoef2=&nmr.dani.coef.2.$count;
     	    		  	       dcoef3=&nmr.dani.coef.3.$count;
-    	    		  	       dcoef4=&nmr.dani.coef.4.$count; 
+    	    		  	       dcoef4=&nmr.dani.coef.4.$count;
     	    		  	       dcoef5=&nmr.dani.coef.5.$count; )
    	 end if
    	 evaluate ($count = $count + 1)
       end loop nloop
    end if
-      
+
 
 {- susceptability anisotropy -}
 
    {- determine number of susceptability anisotropy files -}
-   
+
    evaluate ($count=1)
    evaluate (&output.sani.class.num=0.)
    evaluate ($sani_flag=false)
@@ -350,21 +350,21 @@ end if
    	 evaluate ($count = $count + 1)
       end loop nloop
    end if
-      
+
 
 {- dihedral constraints -}
 
 if (&nmr.cdih.file # "") then
    restraints dihed reset
-      nassign 1600
+      nassign 3000
         @@&nmr.cdih.file
       if (&flag.cv.flag=true) then
          if (&flag.cv.cdih=true) then
             part=&nmr.cv.numpart
          end if
-      end if 
+      end if
   end
-end if 
+end if
 
 {- planarity constraints -}
 
