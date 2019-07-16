@@ -169,3 +169,11 @@
       src: files/run_dmpfold.sh
       dest: /data/DMPfold/run_dmpfold.sh
       mode: "uog+x"
+
+  - name: copy over predict_tmscore.sh
+    become_user: root
+    become_method: sudo
+    copy:
+      src: files/predict_tmscore.sh
+      dest: /data/DMPfold/predict_tmscore.sh
+      mode: "uog+x"

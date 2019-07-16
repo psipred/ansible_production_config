@@ -70,46 +70,46 @@
 #   vars_files:
 #     - secrets/production_secrets.yaml
 
-# mempack won't compile in OSX
-# domThreader seg faults in OSX
-#
-- name: Create Celery worker node
-  hosts: celery_worker_node
-  become: true
-  become_user: root
-  become_method: sudo
-  roles:
-    # - djangomachine
-    # - aaworker
-    # - psipred
-    # - disopred
-    # - memsatsvm
-    # - pGenTHREADER
-    # - model_parts # get the bits for the frontend simple modelling
-    # - dompred
-    # - mempack
-    # - bioserf
-    # - ffpred
-    #- metapsicov
-    # - metsite
-    # - hspred
-    # - memembed
-    # - maketdb
-     - dmpfold
-     - dmp
-  vars_files:
-    - secrets/production_secrets.yaml
-#
-# - name: Install webserver
-#   hosts: webserver
+#mempack won't compile in OSX
+#domThreader seg faults in OSX
+
+# - name: Create Celery worker node
+#   hosts: celery_worker_node
 #   become: true
-#   become_user: dbuchan
+#   become_user: root
 #   become_method: sudo
 #   roles:
 #     # - djangomachine
-#     - webserver
+#     # - aaworker
+#     # - psipred
+#     # - disopred
+#     # - memsatsvm
+#     # - pGenTHREADER
+#     # - model_parts # get the bits for the frontend simple modelling
+#     # - dompred
+#     # - mempack
+#     # - bioserf
+#     # - ffpred
+#     # - metapsicov
+#     # - metsite
+#     # - hspred
+#     # - memembed
+#     # - maketdb
+#     - dmpfold
+#     - dmp
 #   vars_files:
 #     - secrets/production_secrets.yaml
+#
+- name: Install webserver
+  hosts: webserver
+  become: true
+  become_user: dbuchan
+  become_method: sudo
+  roles:
+    # - djangomachine
+    - webserver
+  vars_files:
+    - secrets/production_secrets.yaml
 
 # - name: Updates for datanodes
 #   hosts: update_data
