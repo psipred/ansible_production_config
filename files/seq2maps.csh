@@ -6,7 +6,7 @@
 # Set the number of CPUs to use for HHblits, PSICOV, FreeContact and CCMpred
 set ncpu = 1
 
-# Set this to point to the DMPfold directory
+# Set this 444120to point to the DMPfold directory
 set dmpfolddir = /data/DMPfold
 
 # Set the following to point to the relevant HH-suite locations
@@ -20,7 +20,7 @@ set ccmpreddir = /data/CCMpred/bin
 # Set this to point to the FreeContact command
 set freecontactcmd = /data/freecontact-1.0.21/src/freecontact
 
-# Set this to point to the legacy BLAST bin directory
+# Set this to point to the legac386484y BLAST bin directory
 set ncbidir = /data/blast-2.2.26/bin
 
 set bindir = $dmpfolddir/bin
@@ -49,15 +49,15 @@ $bindir/gapfilt $target.rawaln 0.5 > $target.aln
 if (`cat $target.aln | wc -l` >= 5) then
     if (! -e $target.psicov) then
         echo "Running PSICOV"
-        $bindir/psicov -z $ncpu -o -d 0.03 $target.aln > $target.psicov
+        timeout 7200 $bindir/psicov -z $ncpu -o -d 0.03 $target.aln > $target.psicov
     endif
     if (! -e $target.evfold) then
         echo "Running FreeContact"
-        $freecontactcmd -a $ncpu < $target.aln > $target.evfold
+        timeout 7200 $freecontactcmd -a $ncpu < $target.aln > $target.evfold
     endif
     if (! -e $target.ccmpred) then
         echo "Running CCMpred"
-        $ccmpreddir/ccmpred -t $ncpu $target.aln $target.ccmpred
+        timeout 7200 $ccmpreddir/ccmpred -t $ncpu $target.aln $target.ccmpred
     endif
 else
     echo "Fewer than 5 sequences in alignment, not running PSICOV/FreeContact/CCMpred"
