@@ -59,6 +59,7 @@
     args:
         chdir: "{{ django_aa_home }}"
 
+MAKE THIS COME FROM PSIPRED FORK FROM NOW ON
   - name : Check Out AA from git
     become_user: "{{ django_aa_user }}"
     git:
