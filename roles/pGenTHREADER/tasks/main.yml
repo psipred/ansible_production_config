@@ -79,7 +79,7 @@
   - name: untar domainlib
     when: pgenthreader_exist.stat.exists == False
     unarchive:
-      src: /data/pgenthreader/cath_domain_tdb_4_1.tar.gz
+      src: /data/pgenthreader/cath_domain_tdb_4_2.tar.gz
       dest: /data/pgenthreader/
       remote_src: yes
 
@@ -92,7 +92,7 @@
     command: mv /data/pgenthreader/tdb/psichain.lst /data/pgenthreader/data/
 
   - name: move cath dom list to data
-    command: mv /data/pgenthreader/cath_domain_tdb/psichains.lst /data/pgenthreader/data/
+    command: mv /data/pgenthreader/cath_domain_tdb/cath_dom.lst /data/pgenthreader/data/cath_dom.lst
 
   - name: make the binaries
     when: pgenthreader_exist.stat.exists == False
