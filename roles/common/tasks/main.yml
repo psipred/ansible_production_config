@@ -54,7 +54,7 @@
   #   until: get_url_result.stdout.find("Unable to establish SSL connection") == -1
   #   retries: 2
   #   delay: 10
-  #   when: pip_install.stdout.find("from /usr/lib/python3.4/site-packages (python 3.4)") == -1
+  #   when: pip_install.stdout.find("from /usr/lib/python3.6/site-packages (python 3.6)") == -1
   #
   # - name: get get-pip.py
   #   get_url:
@@ -66,7 +66,7 @@
   #   become_method: sudo
   #
   # - name: Install pip
-  #   shell: "chdir=/root /bin/python3.4 get-pip.py"
+  #   shell: "chdir=/root /bin/python3.6 get-pip.py"
   #   when: pip_install.stdout.find("from /usr/lib/python3.6/site-packages (python 3.6)") == -1
   #   become_user: root
   #   become_method: sudo

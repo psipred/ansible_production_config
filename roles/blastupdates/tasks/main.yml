@@ -1,62 +1,62 @@
-  - name : Check Out update scripts from GIT
-    become_user: "{{ blast_worker_user }}"
-    git:
-      repo: https://github.com/psipred/server_update.git
-      dest: "{{ blast_worker_home }}/server_update"
-      clone: yes
-      force: yes
-
-  - name: Stop the aa_workers
-    shell: "chdir={{ blast_worker_home }}/analytics_automated/ source {{ blast_worker_home }}aa_env/bin/activate; celery multi stop_verify worker --pidfile=celery.pid"
-    become_user: "{{ blast_worker_user }}"
-    #when: celery_running.stdout.find("celery worker") == 1
-
-  - name: start the celery beat service
-    shell: "chdir={{ blast_worker_home }}/analytics_automated/ source {{ blast_worker_home }}aa_env/bin/activate; celery --app=analytics_automated_project.celery:app beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler --detach"
-    become_user: "{{ blast_worker_user }}"
-
-  - name: Start the aa_workers
-    shell: "chdir={{ blast_worker_home }}/analytics_automated/ source {{ blast_worker_home }}aa_env/bin/activate; celery --app=analytics_automated_project.celery:app worker --loglevel=INFO -Q sequpdate,blast,low_blast,high_blast --detach --pidfile=celery.pid"
-    become_user: "{{ blast_worker_user }}"
-    #when: celery_running.stdout.find("-m celery worker --loglevel=INFO") == -1
-
-  - name: copy over the aa worker update service
-    become_user: root
-    become_method: sudo
-    copy:
-      src: files/update_blastworker.service
-      dest: /etc/systemd/system/blastworker.service
-      mode: "uog+x"
-
-  - name: Add service to systemctl
-    become_user: root
-    become_method: sudo
-    shell: systemctl enable aaworker.service
-
-  - name: copy over the beat service
-    become_user: root
-    become_method: sudo
-    copy:
-      src: files/celerybeat.service
-      dest: /etc/systemd/system/celerybeat.service
-      mode: "uog+x"
-
-  - name: Add service to systemctl
-    become_user: root
-    become_method: sudo
-    shell: systemctl enable celerybeat.service
-
-  - name: make tmp dir
-    shell: mkdir /data/update_tmp; chown blast_worker /data/update_tmp
-
-  - name: make tmp dir
-    shell: mkdir /data/update_tdb; chown blast_worker /data/update_tdb
-
-  - name: add tmp cleaning script to cron
-    become_user: "{{ blast_worker_user }}"
-    cron:
-      name: "Clean update seqdb"
-      minute: "0"
-      hour: "2"
-      day: "1"
-      job: "/usr/bin/sh {{ blast_worker_home }}/server_update/update_blast_sequence_databases.sh > /dev/null 2>&1"
+#  - name : Check Out update scripts from GIT
+#    become_user: "{{ blast_worker_user }}"
+#    git:
+#      repo: https://github.com/psipred/server_update.git
+#      dest: "{{ blast_worker_home }}/server_update"
+#      clone: yes
+#      force: yes
+#
+#  - name: Stop the aa_workers
+#    shell: "chdir={{ blast_worker_home }}/analytics_automated/ source {{ blast_worker_home }}aa_env/bin/activate; celery multi stop_verify worker --pidfile=celery.pid"
+#    become_user: "{{ blast_worker_user }}"
+#    #when: celery_running.stdout.find("celery worker") == 1
+#
+#  - name: start the celery beat service
+#    shell: "chdir={{ blast_worker_home }}/analytics_automated/ source {{ blast_worker_home }}aa_env/bin/activate; celery --app=analytics_automated_project.celery:app beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler --detach"
+#    become_user: "{{ blast_worker_user }}"
+#
+#  - name: Start the aa_workers
+#    shell: "chdir={{ blast_worker_home }}/analytics_automated/ source {{ blast_worker_home }}aa_env/bin/activate; celery --app=analytics_automated_project.celery:app worker --loglevel=INFO -Q sequpdate,blast,low_blast,high_blast --detach --pidfile=celery.pid"
+#    become_user: "{{ blast_worker_user }}"
+#    #when: celery_running.stdout.find("-m celery worker --loglevel=INFO") == -1
+#
+#  - name: copy over the aa worker update service
+#    become_user: root
+#    become_method: sudo
+#    copy:
+#      src: files/update_blastworker.service
+#      dest: /etc/systemd/system/blastworker.service
+#      mode: "uog+x"
+#
+#  - name: Add service to systemctl
+#    become_user: root
+#    become_method: sudo
+#    shell: systemctl enable aaworker.service
+#
+#  - name: copy over the beat service
+#    become_user: root
+#    become_method: sudo
+#    copy:
+#      src: files/celerybeat.service
+#      dest: /etc/systemd/system/celerybeat.service
+#      mode: "uog+x"
+#
+#  - name: Add service to systemctl
+#    become_user: root
+#    become_method: sudo
+#    shell: systemctl enable celerybeat.service
+#
+#  - name: make tmp dir
+#    shell: mkdir /data/update_tmp; chown blast_worker /data/update_tmp
+#
+#  - name: make tmp dir
+#    shell: mkdir /data/update_tdb; chown blast_worker /data/update_tdb
+#
+#  - name: add tmp cleaning script to cron
+#    become_user: "{{ blast_worker_user }}"
+#    cron:
+#      name: "Clean update seqdb"
+#      minute: "0"
+#      hour: "2"
+#      day: "1"
+#      job: "/usr/bin/sh {{ blast_worker_home }}/server_update/update_blast_sequence_databases.sh > /dev/null 2>&1"

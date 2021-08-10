@@ -4,7 +4,7 @@
 #  WARNING! YOU MUST HAVE A COMPLETE secrets/
 #  YOU MUST HAVE files/jdk-8u60-linux-x64.tar.gz
 #
-
+#
 # NOT NEEDED IN PRODUCTION
 # - name: Set up common bits needed for the rest of the install
 #   hosts: everyone
@@ -15,7 +15,8 @@
 #     - common
 #   vars_files:
 #     - secrets/production_secrets.yaml
-
+#
+#no need to go anywhere near redis
 # - name: Apply the redis configuration
 #   hosts: redis
 #   become: true
@@ -25,7 +26,8 @@
 #    - redis
 #   vars_files:
 #    - secrets/production_secrets.yaml
-
+#
+#no need to go anywhere near postgres
 # - name: Apply the postgres configuration
 #   hosts: dbserver
 #   become: true
@@ -35,78 +37,78 @@
 #     - dbserver
 #   vars_files:
 #     - secrets/production_secrets.yaml
-# # #
-# - name: Apply Analytics Automated head node configuration
-#   hosts: aa_head
-#   become: true
-#   become_user: dbuchan
-#   become_method: sudo
-#   roles:
-#     # - djangomachine
-#     - aahead
-#   vars_files:
-#     - secrets/production_secrets.yaml
-
-# - name: Create blastmachine
-#   hosts: blastmachine
-#   become: true
-#   become_user: root
-#   become_method: sudo
-#   roles:
-#     # - djangomachine
-#     - blastworkers
-#     # - blastmachine
-#   vars_files:
-#     - secrets/production_secrets.yaml
 #
-# - name: Create blast_cache machine
-#   hosts: blast_cache
-#   become: true
-#   become_user: root
-#   become_method: sudo
-#   roles:
-#     # - djangomachine
-#     - blastcache
-#   vars_files:
-#     - secrets/production_secrets.yaml
+ - name: Apply Analytics Automated head node configuration
+   hosts: aa_head
+   become: true
+   become_user: dbuchan
+   become_method: sudo
+   roles:
+     - djangomachine
+     - aahead
+   vars_files:
+     - secrets/production_secrets.yaml
 
-#mempack won't compile in OSX
-#domThreader seg faults in OSX
+ - name: Create blastmachine
+   hosts: blastmachine
+   become: true
+   become_user: root
+   become_method: sudo
+   roles:
+     - djangomachine
+     - blastworkers
+#     - blastmachine
+   vars_files:
+     - secrets/production_secrets.yaml
 
-# - name: Create Celery worker node
-#   hosts: celery_worker_node
-#   become: true
-#   become_user: root
-#   become_method: sudo
-#   roles:
-#     # - djangomachine
-#     # - aaworker
-#     # - psipred
-#     # - disopred
-#     # - memsatsvm
-#     # - pGenTHREADER
-#     # - model_parts # get the bits for the frontend simple modelling
-#     # - dompred
-#     # - mempack
-#     # - bioserf
-#     # - ffpred
-#     # - metapsicov
-#     # - metsite
-#     # - hspred
-#     # - memembed
-#     # - maketdb
+ - name: Create blast_cache machine
+   hosts: blast_cache
+   become: true
+   become_user: root
+   become_method: sudo
+   roles:
+     - djangomachine
+     - blastcache
+   vars_files:
+     - secrets/production_secrets.yaml
+
+# #mempack won't compile in OSX
+# #domThreader seg faults in OSX
+
+ - name: Create Celery worker node
+   hosts: celery_worker_node
+   become: true
+   become_user: root
+   become_method: sudo
+   roles:
+      - djangomachine
+      - aaworker
+#      - psipred
+#      - disopred
+#      - memsatsvm
+#      - pGenTHREADER
+#      - model_parts  #get the bits for the frontend simple modelling
+#      - dompred
+#      - mempack
+#      - bioserf
+#      - ffpred
+#      - metapsicov
+#      - metsite
+#      - hspred
+#      - memembed
+#      - maketdb
 #     - dmpfold
 #     - dmp
-#   vars_files:
-#     - secrets/production_secrets.yaml
-#
+   vars_files:
+     - secrets/production_secrets.yaml
+
 - name: Install webserver
   hosts: webserver
   become: true
-  become_user: dbuchan
+  become_user: root
   become_method: sudo
   roles:
-    # - djangomachine
+    - djangomachine
     - webserver
   vars_files:
     - secrets/production_secrets.yaml
@@ -120,7 +122,7 @@
 #     - dataupdates
 #   vars_files:
 #     - secrets/staging_secrets.yaml
-# #
+#
 # - name: Updates for blastnodes
 #   hosts: update_blast
 #   become: true
@@ -140,7 +142,7 @@
 #     - cleartmp
 #   vars_files:
 #     - secrets/production_secrets.yaml
-# #
+#
 # - name: Tidy old db entries
 #   hosts: clear_db
 #   become: true
