@@ -1,60 +1,64 @@
 ---
-
-  - name: "Add {{ blast_cache_user }} user"
-    user:
-      name: "{{ blast_cache_user }}"
-      password: "{{ blast_cache_hashed_password }}"
-      group: apache
-    become_user: root
-    become_method: sudo
-
-  - name: Check pip install
-    ignore_errors: yes
-    shell: which pip
-    register: pip_install
-    check_mode: no
-    become_user: root
-    become_method: sudo
-
-  - name: Download get-pip.py
-    become_user: "{{ blast_cache_user }}"
-    when: pip_install.stderr | search("no pip in")
-    get_url:
-      url: https://bootstrap.pypa.io/get-pip.py
-      dest: "{{  blast_cache_home }}/get-pip.py"
-      timeout: 120
-    register: get_url_result
-    # until: get_url_result.stdout.find("Unable to establish SSL connection") == -1
-    # retries: 2
-    # delay: 10
-
-  - name: Install pip
-    shell: "chdir={{ blast_cache_home }} /bin/python3.6 get-pip.py"
-    when: pip_install.stdout.find("from /usr/lib/python3.6/site-packages (python 3.6)") == 1
-
-  # The virtualenv installed above is broken so we update it here
-  - name: Upgrade virtualenv
-    shell: pip install --upgrade virtualenv
-
-  - name: Check if we have blast_cache env
-    stat: "path={{ blast_cache_home }}/blast_cache_env"
-    become_user: root
-    register: bc_env_exist
-
-  - name: Create the blast_cache virtualenv
-    become_user: "{{ blast_cache_user }}"
-    command: virtualenv blast_cache_env -p /bin/python3.6
-    when: bc_env_exist.stat.exists == False
-    args:
-        chdir: "{{ blast_cache_home }}"
+#
+#  - name: "Add {{ blast_cache_user }} user"
+#    user:
+#      name: "{{ blast_cache_user }}"
+#      password: "{{ blast_cache_hashed_password }}"
+#      group: apache
+#    become_user: root
+#    become_method: sudo
+#
+#  - name: Check pip install
+#    ignore_errors: yes
+#    shell: which pip
+#    register: pip_install
+#    check_mode: no
+#    become_user: root
+#    become_method: sudo
+#
+#  - name: Download get-pip.py
+#    become_user: "{{ blast_cache_user }}"
+#    when: pip_install.stderr | search("no pip in")
+#    get_url:
+#      url: https://bootstrap.pypa.io/get-pip.py
+#      dest: "{{  blast_cache_home }}/get-pip.py"
+#      timeout: 120
+#    register: get_url_result
+#    # until: get_url_result.stdout.find("Unable to establish SSL connection") == -1
+#    # retries: 2
+#    # delay: 10
+#
+#  - name: Install pip
+#    shell: "chdir={{ blast_cache_home }} /bin/python3.6 get-pip.py"
+#    when: pip_install.stdout.find("from /usr/lib/python3.6/site-packages (python 3.6)") == 1
+#
+#  # The virtualenv installed above is broken so we update it here
+#  - name: Upgrade virtualenv
+#    shell: pip install --upgrade virtualenv
+#
+#  - name: Check if we have blast_cache env
+#    stat: "path={{ blast_cache_home }}/blast_cache_env"
+#    become_user: root
+#    register: bc_env_exist
+#
+#  - name: Create the blast_cache virtualenv
+#    become_user: "{{ blast_cache_user }}"
+#    command: virtualenv blast_cache_env -p /bin/python3.6
+#    when: bc_env_exist.stat.exists == False
+#    args:
+#        chdir: "{{ blast_cache_home }}"
 
   - name : Check Out blast_cache from git
     become_user: "{{ blast_cache_user }}"
     git:
-      repo: https://github.com/psipred/blast_cache.git
+      repo: "https://{{ username_password }}@github.com/psipred/blast_cache.git"
       dest: "{{ blast_cache_home }}blast_cache"
       clone: yes
       force: yes
+      ssh_opts: "-o StrictHostKeyChecking=no"
+      version: main
+    environment:
+      GIT_TERMINAL_PROMPT: 0  reports "terminal prompts disabled" on missing password
 
   - name: Install requirements
     become_user: "{{ blast_cache_user }}"
@@ -136,7 +140,7 @@
       chdir: "{{ blast_cache_home }}blast_cache"
     become_user: "{{ blast_cache_user }}"
     register: bc_started
-    when: bc_running.stdout.find("httpd (mod_wsgi-express)") == -1
+    # when: bc_running.stdout.find("httpd (mod_wsgi-express)") == -1
 
   - name : add bc admin account
     shell: "source {{ blast_cache_home }}blast_cache_env/bin/activate; echo \"from django.contrib.auth.models import User; User.objects.filter(username='admin').delete(); User.objects.create_superuser('admin', 'a@b.com', '{{ bc_admin_pass }}')\" | python manage.py shell --settings=blast_cache.settings.production"
