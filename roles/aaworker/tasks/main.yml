@@ -77,11 +77,10 @@
     when: pip_install.stdout.find("from /usr/lib/python3.6/site-packages (python 3.6)") == -1
     become_user: root
 
-MAKE THIS COME FROM THE PSIPRED FORK FROM NOW ON
   - name : Check Out AA from git
     become_user: "{{ django_worker_user }}"
     git:
-      repo: https://github.com/AnalyticsAutomated/analytics_automated.git
+      repo: https://github.com/psipred/analytics_automated.git
       dest: "{{ django_worker_home }}analytics_automated"
       clone: yes
       force: yes
