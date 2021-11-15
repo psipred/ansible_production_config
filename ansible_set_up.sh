@@ -17,7 +17,7 @@
 ssh-agent bash
 ssh-add ~/.ssh/id_rsa
 # switch to the relevant virtualenv
-source /scratch0/NOT_BACKED_UP/dbuchan/python2/bin/activate
+source /scratch/virtualenvs/python2/bin/activate
 source /home/dbuchan/Applications/ansible/hacking/env-setup
 
 # ./Everything
