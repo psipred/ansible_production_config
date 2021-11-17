@@ -1,0 +1,94 @@
+
+  - name : Check Out AA from git
+    become_user: "{{ django_aa_user }}"
+    git:
+      repo: https://github.com/psipred/analytics_automated.git
+      dest: "{{ django_aa_home }}analytics_automated"
+      clone: yes
+      force: yes
+      version: main
+
+  - name: Install requirements
+    become_user: "{{ django_aa_user }}"
+    pip:
+      chdir: "{{ django_aa_home }}"
+      virtualenv: "{{ django_aa_home }}aa_env"
+      virtualenv_command: /bin/virtualenv
+      virtualenv_python: "{{ django_aa_home }}aa_env/bin/python"
+      state: latest
+      requirements: "{{ django_aa_home }}analytics_automated/requirements/production.txt"
+
+  - name: Copy aa staging_conf
+    become_user: "{{ django_aa_user }}"
+    copy:
+      src: secrets/staging.py
+      dest: "{{ django_aa_home }}/analytics_automated/analytics_automated_project/settings/"
+      owner: "{{ django_aa_user }}"
+
+  - name: Copy aa staging secrets
+    become_user: "{{ django_aa_user }}"
+    copy:
+      src: secrets/staging_secrets.json
+      dest: "{{ django_aa_home }}/analytics_automated/analytics_automated_project/settings/"
+      owner: "{{ django_aa_user }}"
+
+  - name: Copy aa base secrets
+    become_user: "{{ django_aa_user }}"
+    copy:
+      src: secrets/base_secrets.json
+      dest: "{{ django_aa_home }}/analytics_automated/analytics_automated_project/settings/"
+      owner: "{{ django_aa_user }}"
+
+  - name: Copy wsgi.py
+    become_user: "{{ django_aa_user }}"
+    copy:
+      src: files/wsgi.py
+      dest: "{{ django_aa_home }}/analytics_automated/analytics_automated_project/"
+      owner: "{{ django_aa_user }}"
+
+  - name: copy over the celery file
+    become_user: "{{ django_aa_user }}"
+    copy:
+      src: files/celery.py
+      dest: "{{ django_aa_home }}/analytics_automated/analytics_automated_project/"
+      owner: "{{ django_aa_user }}"
+
+  - name: Make aa logging dir
+    become_user: "{{ django_aa_user }}"
+    file:
+      path: "{{ django_aa_home }}/analytics_automated/logs"
+      state: directory
+      owner: "{{ django_aa_user }}"
+
+  - name: Run Django collect static
+    become_user: "{{ django_aa_user }}"
+    django_manage:
+      command: collectstatic
+      virtualenv: "{{ django_aa_home }}aa_env/"
+      settings: analytics_automated_project.settings.staging
+      app_path: "{{ django_aa_home }}/analytics_automated/"
+
+  - name: Run Django migrations
+    become_user: "{{ django_aa_user }}"
+    django_manage:
+      command: migrate
+      virtualenv: "{{ django_aa_home }}aa_env/"
+      settings: analytics_automated_project.settings.staging
+      app_path: "{{ django_aa_home }}/analytics_automated/"
+
+  - name : Configure AA/Apache
+    shell: "source {{ django_aa_home}}aa_env/bin/activate; python manage.py runmodwsgi --settings=analytics_automated_project.settings.staging --setup-only --user django_aa --group apache --threads=10 --processes=4 --reload-on-changes --server-root=/opt/aa_httpd/"
+    args:
+      chdir: "{{ django_aa_home }}analytics_automated"
+    become_user: "{{ django_aa_user }}"
+    register: aa_started
+
+  - name : Restart aa
+    shell: "/opt/aa_httpd/apachectl restart"
+    become_user: "{{ django_aa_user }}"
+    environment:
+      DRMAA_LIBRARY_PATH: /opt/ogs_src/GE2011.11/lib/linux-x64/libdrmaa.so
+      SGE_ROOT: /opt/ogs_src/GE2011.11/
+
+# as the server was started with --reload-on-changes then this should be sufficient
+# to restart the service

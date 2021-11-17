@@ -1,24 +1,24 @@
 # ansible-playbook -i staging restart_aa.yml -f 1
 
-# - name: Restart django aa on the aahead
-#   hosts: aa_head
-#   become: true
-#   become_user: dbuchan
-#   become_method: sudo
-#   roles:
-#    - restart_aa
-#   vars_files:
-#    - secrets/production_secrets.yaml
-
-- name: restarts workers
-  hosts: celery_worker_node
+- name: Restart django aa on the aahead
+  hosts: aa_head
   become: true
   become_user: dbuchan
   become_method: sudo
   roles:
-    - aaworker
+   - restart_aa
   vars_files:
-    - secrets/production_secrets.yaml
+   - secrets/production_secrets.yaml
+
+# - name: restarts workers
+#   hosts: celery_worker_node
+#   become: true
+#   become_user: dbuchan
+#   become_method: sudo
+#   roles:
+#     - restart_aaworker
+#   vars_files:
+#     - secrets/production_secrets.yaml
 
 # - name: restarts blast workers
 #   hosts: blast_worker_node
@@ -26,7 +26,7 @@
 #   become_user: dbuchan
 #   become_method: sudo
 #   roles:
-#     - blastworkers
+#     - restart_blastworkers
 #   vars_files:
 #     - secrets/production_secrets.yaml
 
