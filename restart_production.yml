@@ -10,27 +10,25 @@
 #   vars_files:
 #    - secrets/production_secrets.yaml
 
-#Need to add blast workers here too
-# - name: restarts workers
-#   hosts: celery_worker_node
-#   become: true
-#   become_user: dbuchan
-#   become_method: sudo
-#   roles:
-#     - aaworker
-#   vars_files:
-#     - secrets/production_secrets.yaml
-
-- name: restarts blast workers
+- name: restarts workers
   hosts: celery_worker_node
   become: true
   become_user: dbuchan
   become_method: sudo
   roles:
-    - blastworkers
+    - aaworker
   vars_files:
     - secrets/production_secrets.yaml
 
+# - name: restarts blast workers
+#   hosts: blast_worker_node
+#   become: true
+#   become_user: dbuchan
+#   become_method: sudo
+#   roles:
+#     - blastworkers
+#   vars_files:
+#     - secrets/production_secrets.yaml
 
 # - name: Restart Webserver
 #   hosts: webserver
