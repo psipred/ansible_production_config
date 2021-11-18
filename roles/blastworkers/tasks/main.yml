@@ -36,6 +36,7 @@
 
   - name: Install pip
     shell: "chdir={{ blast_worker_home }} /bin/python3.6 get-pip.py"
+    become_user: root
     when: pip_exist.stat.exists == False
 
   # The virtualenv installed above is broken so we update it here
@@ -47,7 +48,7 @@
     become_user: root
     register: aa_env_exist
 
-  - name: Create the blast worker virtualenv
+  - name: Create the aa virtualenv
     become_user: "{{ blast_worker_user }}"
     command: virtualenv -p /bin/python3.6 aa_env
     when: aa_env_exist.stat.exists == False
@@ -70,18 +71,18 @@
   #   delay: 10
   #   when: pip_install.stdout.find("from /usr/lib/python3.4/site-packages (python 3.4)") == -1
 
-  - name: Download get-pip.py
-    become_user: "{{ blast_worker_user }}"
-    when: pip_install.stdout.find("from /usr/lib/python3.4/site-packages (python 3.4)") == -1
-    get_url:
-      url: https://bootstrap.pypa.io/get-pip.py
-      dest: "{{ blast_worker_home }}/get-pip.py"
-      timeout: 120
-    register: get_url_result
-
-  - name: Install pip
-    shell: "chdir={{ blast_worker_home }} /bin/python3.6 get-pip.py"
-    when: pip_install.stdout.find("from /usr/lib/python3.6/site-packages (python 3.4)") == -1
+  # - name: Download get-pip.py
+  #   become_user: "{{ blast_worker_user }}"
+  #   when: pip_install.stdout.find("from /usr/lib/python3.4/site-packages (python 3.4)") == -1
+  #   get_url:
+  #     url: https://bootstrap.pypa.io/get-pip.py
+  #     dest: "{{ blast_worker_home }}/get-pip.py"
+  #     timeout: 120
+  #   register: get_url_result
+  #
+  # - name: Install pip
+  #   shell: "chdir={{ blast_worker_home }} /bin/python3.6 get-pip.py"
+  #   when: pip_install.stdout.find("from /usr/lib/python3.6/site-packages (python 3.4)") == -1
 
   # grab the blast cache to get the submission/blast script
   - name : Check Out blast_cache from git
@@ -91,6 +92,8 @@
       dest: "{{ blast_worker_home }}blast_cache"
       clone: yes
       force: yes
+      update: yes
+      version: main
 
   - name : Check Out AA from git
     become_user: "{{ blast_worker_user }}"
@@ -99,6 +102,8 @@
       dest: "{{ blast_worker_home }}analytics_automated"
       clone: yes
       force: yes
+      update: yes
+      version: main
 
   - name: Install aa requirements
     become_user: "{{ blast_worker_user }}"
@@ -108,7 +113,7 @@
       virtualenv: "{{ blast_worker_home }}aa_env"
       virtualenv_command: /bin/virtualenv
       virtualenv_python: "{{ blast_worker_home }}aa_env/bin/python"
-      requirements: "{{ blast_worker_home }}analytics_automated/requirements/staging.txt"
+      requirements: "{{ blast_worker_home }}analytics_automated/requirements/production.txt"
 
   - name: Install blast cache requirements
     become_user: "{{ blast_worker_user }}"
@@ -181,8 +186,8 @@
       src: /webdata/production_submissions
       dest: "{{ blast_worker_home }}/analytics_automated/submissions"
       state: link
-      owner: "{{ blast_worker_user }}"
-      group: apache
+      # owner: "{{ blast_worker_user }}"
+      # group: apache
       mode: "ug+rw"
 
   - name: Check Celery running status

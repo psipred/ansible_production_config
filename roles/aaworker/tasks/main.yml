@@ -84,6 +84,7 @@
       dest: "{{ django_worker_home }}analytics_automated"
       clone: yes
       force: yes
+      update: yes
 
   - name: Install requirements
     become_user: "{{ django_worker_user }}"
@@ -93,7 +94,7 @@
       virtualenv: "{{ django_worker_home }}aa_env"
       virtualenv_command: /bin/virtualenv
       virtualenv_python: "{{ django_worker_home }}aa_env/bin/python"
-      requirements: "{{ django_worker_home }}analytics_automated/requirements/staging.txt"
+      requirements: "{{ django_worker_home }}analytics_automated/requirements/production.txt"
 
   - name: Copy aa production_conf
     become_user: "{{ django_worker_user }}"

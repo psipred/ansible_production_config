@@ -18,12 +18,13 @@
 
   - name: Download get-pip.py
     become_user: "{{ blast_cache_user }}"
-    when: pip_install.stderr | search("no pip in")
+    when: pip_install.stdout.find("from /usr/lib/python3.6/site-packages (python 3.6)") == -1
     get_url:
       url: https://bootstrap.pypa.io/get-pip.py
-      dest: "{{  blast_cache_home }}/get-pip.py"
+      dest: "{{ blast_cache_home }}/get-pip.py"
       timeout: 120
     register: get_url_result
+
     # until: get_url_result.stdout.find("Unable to establish SSL connection") == -1
     # retries: 2
     # delay: 10
