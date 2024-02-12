@@ -95,21 +95,36 @@
 #     # - hspred
 #     # - memembed
 #     # - maketdb
-#     - dmpfold
-#     - dmp
+#     # - dmpfold
+#     # - dmp
+#     # - s4pred
+#     - merizo
 #   vars_files:
 #     - secrets/production_secrets.yaml
 #
-- name: Install webserver
-  hosts: webserver
-  become: true
-  become_user: dbuchan
-  become_method: sudo
-  roles:
-    # - djangomachine
-    - webserver
-  vars_files:
-    - secrets/production_secrets.yaml
+ 
+#### OLD WEBSERVER INSTALL
+# - name: Install webserver
+#   hosts: webserver
+#   become: true
+#   become_user: dbuchan
+#   become_method: sudo
+#   roles:
+#     # - djangomachine
+#     - webserver
+#   vars_files:
+#     - secrets/production_secrets.yaml
+
+# - name: Install frontend
+#   hosts: webserver
+#   become: true
+#   become_user: dbuchan
+#   become_method: sudo
+#   roles:
+#     # - djangomachine
+#     - psipredreact
+#   vars_files:
+#     - secrets/staging_secrets.yaml
 
 # - name: Updates for datanodes
 #   hosts: update_data
