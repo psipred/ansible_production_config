@@ -99,6 +99,7 @@
     # - dmp
     # - s4pred
     - merizo
+    # - dmpfold2
   vars_files:
     - secrets/production_secrets.yaml
 
