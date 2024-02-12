@@ -7,3 +7,9 @@
     virtualenv: "{{ django_worker_home }}aa_env"
     virtualenv_command: /bin/virtualenv
     virtualenv_python: "{{ django_worker_home }}aa_env/bin/python"
+
+
+Monkey patch aa_env/lib/python3.9/site-packages/dmpfold/network.py at two locations
+w, v = torch.symeig(M.float(), eigenvectors=True)
+or
+w, v = torch.linalg.eigh(M.float())
